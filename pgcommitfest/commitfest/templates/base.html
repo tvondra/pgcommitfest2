@@ -1,0 +1,47 @@
+{%load commitfest%}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="/static/commitfest/css/jquery-ui.css" type="text/css">
+  <link rel="stylesheet" href="/static/selectable/css/dj.selectable.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/static/commitfest/css/bootstrap.css" />
+<style>
+li.selectable-deck-item .selectable-deck-remove {
+   float:none !important;
+   margin-left: 20px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<ul class="breadcrumb">
+ <li><a href="/">Home</a> <span class="divider">/</span></li>
+{%for c in breadcrumbs%}
+ <li><a href="{{c.href}}">{{c.title}}</a> <span class="divider">/</span></li>
+{%endfor%}
+ <li class="active">{{title}}</li>
+{%if user.is_authenticated%}
+ <li class="pull-right active"><a href="/account/profile/">Logged in</a> as mha (<a href="/account/logout/">log out</a>)</li>
+{%endif%}
+</ul>
+
+<h1>{{title}}</h1>
+
+{%if messages%}
+ {%for m in messages%}
+  <div class="alert {{m.tags|alertmap}}">{{m}}</div>
+ {%endfor%}
+{%endif%}
+
+{%block contents%}
+{%endblock%}
+</div>
+<script src="/static/commitfest/js/jquery.js"></script>
+<script src="/static/commitfest/js/bootstrap-dropdown.js"></script>
+<script src="/static/commitfest/js/bootstrap-modal.js"></script>
+<script src="/static/commitfest/js/bootstrap-collapse.js"></script>
+<script src="/static/commitfest/js/jquery-ui.js"></script>
+<script type="text/javascript" src="/static/selectable/js/jquery.dj.selectable.js"></script>
+{%block morescript%}{%endblock%}
+</html>

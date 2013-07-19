@@ -1,0 +1,258 @@
+{%extends "base.html"%}
+{%load commitfest%}
+{%block contents%}
+<style>
+#attachThreadListWrap.loading {
+    display: block;
+    background: url('/static/commitfest/spinner.gif') no-repeat center;
+    width: 124px;
+    height: 124px;
+    margin: 0 auto;
+}
+#attachThreadListWrap.loading * {
+    display: none;  
+}
+.close-nofloat {
+   float: none !important;
+}
+</style>
+
+{%include "patch_commands.inc"%}
+<table class="table table-bordered">
+  <tbody>
+    <tr>
+      <th>Title</th>
+      <td>{{patch.name}}</td>
+    </tr>
+    <tr>
+      <th>Topic</th>
+      <td>{{patch.topic}}</td>
+    </tr>
+    <tr>
+      <th>Created</th>
+      <td>{{patch.created}}</td>
+    </tr>
+    <tr>
+      <th style="white-space: nowrap;">Last modified</th>
+      <td>{{patch.modified}} ({{patch.modified|timesince}} ago)</td>
+    </tr>
+    <tr>
+      <th>Status</th>
+      <td>{%for c in patch_commitfests %}
+	{{c.commitfest}}: <span class="label">{{c.statusstring}}</span><br/>
+	{%endfor%}
+      </td>
+    </tr>
+    <tr>
+      <th>Authors</th>
+      <td>{{patch.authors_string}}</td>
+    </tr>
+    <tr>
+      <th>Reviewers</th>
+      <td>{{patch.reviewers_string}}<a href="reviewer/{{is_reviewer|yesno:"remove,become"}}/" class="btn pull-right">{{is_reviewer|yesno:"Remove from reviewers,Become reviewer"}}</a></td>
+    </tr>
+    <tr>
+      <th>Committer</th>
+      <td>{%if patch.committer%}{{patch.committer.first_name}} {{patch.committer.last_name}} ({{patch.committer.username}}){%endif%}</td>
+    </tr>
+    <tr>
+      <th>Links</th>
+      <td>
+	{%if patch.wikilink%}<a href="{{patch.wikilink}}">Wiki</a>{%endif%}
+	{%if patch.gitlink%}<a href="{{patch.gitlink}}">Git</a>{%endif%}
+      </td>
+    </tr>
+    <tr>
+      <th>Emails</th>
+      <td>
+{%if user.is_authenticated%}
+	<div style="float:right"><button class="btn" onclick="attachThread()">Attach thread</button></div>
+{%else%}
+	<div style="float:right"><button class="btn" onclick="location.href='/login_and_redirect_back'">Attach thread</button></div>
+{%endif%}
+	<dl>
+	{%for t in patch.mailthread_set.all%}
+	 <dt><a href="http://www.postgresql.org/message-id/flat/{{t.messageid}}/">{{t.subject}}</a> <button type="button" class="close close-nofloat" title="Detach this thread" onclick="detachThread({{cf.id}},{{patch.id}},'{{t.messageid}}')">&times;</button></dt>
+	 <dd>
+	  First at <a href="http://www.postgresql.org/message-id/{{t.messageid}}/">{{t.firstmessage}}</a> by {{t.firstauthor|hidemail}}<br/>
+	  Latest at <a href="http://www.postgresql.org/message-id/{{t.latestmsgid}}/">{{t.latestmessage}}</a> by {{t.latestauthor|hidemail}}<br/>
+	  {%for ta in t.mailthreadattachment_set.all%}
+	  {%if forloop.first%}
+	  Latest attachment at <a href="http://www.postgrsql.org/message-id/{{ta.messageid}}/">{{ta.date}}</a> from {{ta.author|hidemail}} <button type="button" class="btn btn-mini" data-toggle="collapse" data-target="#att{{t.pk}}"><i class="icon-plus"></i></button>
+           <div id="att{{t.pk}}" class="collapse">
+	  {%else%}
+           &nbsp;&nbsp;&nbsp;&nbsp;Attachment at <a href="http://www.postgresql.org/message-id/{{ta.messageid}}/">{{ta.date}}</a> from {{ta.author|hidemail}}<br/>
+          {%endif%}
+          {%if forloop.last%}</div>{%endif%}
+	  {%endfor%}
+	 </dd>
+	{%endfor%}
+	</dl>
+      </td>
+    </tr>
+    <tr>
+      <th>History</th>
+      <td>
+	<div style="max-height: 200px; overflow-y: scroll;">
+	<table class="table table-bordered table-striped table-condensed">
+	  <thead>
+	    <tr>
+	      <th>When</th>
+	      <th>Who</th>
+	      <th>What</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {%for h in patch.history %}	  
+	    <tr>
+	      <td style="white-space: nowrap;">{{h.date}}</td>
+	      <td style="white-space: nowrap;">{{h.by}}</td>
+	      <td width="99%">{{h.what}}</td>
+	    </tr>
+	    {%endfor%}
+	  </tbody>
+	</table>
+	</div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+{%include "patch_commands.inc"%}
+
+{%comment%}Modal dialog for attach thread{%endcomment%}
+<div class="modal hide fade" id="attachModal" role="dialog" style="width:80%; left: 10%; margin-left:auto; margin-right: auto;">
+ <div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+  <h3>Attach thread</h3>
+ </div>
+ <div class="modal-body">
+   <form class="form-search" style="margin-bottom: 5px;">
+     <div class="input-append">
+       <input id="attachThreadSearchField" type="text" class="span2 search-query">
+       <button id="attachThreadSearchButton" onclick="return findLatestThreads()" class="btn disabled">Search</button>
+     </div>
+   </form>
+   <div>Pick one of the recent emails from pgsql-hackers, or search above for subject or name:</div>
+   <div id="attachThreadListWrap">
+     <select id="attachThreadList" size="6" style="width:100%;" onchange="attachThreadChanged()">
+     </select>
+   </div>
+   <div>Or enter an <i>exact</i> message id:</div>
+   <input type="text" id="attachThreadMessageId" placeholder="Message id" class="input-block-level" onkeypress="attachThreadChanged()" onchange="attachThreadChanged()">
+ </div>
+ <div class="modal-footer">
+   <a href="#" class="btn" data-dismiss="modal">Close</a>
+   <a href="#" id="doAttachThreadButton" class="btn btn-primary disabled" onclick="doAttachThread({{cf.id}}, {{patch.id}})">Attach thread</a>
+ </div>
+</div>
+{%endblock%}
+
+{%block morescript%}
+<script language="javascript">
+/* XXX: Much of this should of course be in a shared .js file instead! */
+function verify_reject() {
+   return confirm('Are you sure you want to close this patch as Rejected?\n\nThis should only be done when a patch will never be applied - if more work is needed, it should instead be set to "Returned with Feedback".\n\nSo - are you sure?');
+}
+function verify_returned() {
+   return confirm('Are you sure you want to close this patch as Returned with Feedback?\n\nThis means the patch will be marked as closed in this commitfest, but will automatically be moved to the next one. If no further work is expected on this patch, it should be closed with "Rejected" istead.\n\nSo - are you sure?');
+}
+function verify_committed() {
+{%if is_committer%}
+   return confirm('Are you sure you want to close this patch as Committed?');
+{%else%}
+   alert('Currently, only the committer who actually made the commit can do this. We should make a little prompt for the committer field otherwise..');
+   return false;
+{%endif%}
+}
+
+function findLatestThreads() {
+   $('#attachThreadListWrap').addClass('loading');
+   $('#attachThreadSearchButton').addClass('disabled');
+   $.get('/ajax/getThreads/', {
+      's': $('#attachThreadSearchField').val(),
+   }).success(function(data) {
+         sel = $('#attachThreadList');
+         sel.find('option').remove();
+         $.each(data, function(m,i) {
+            sel.append('<option value="' + i.msgid + '">' + i.from + ': ' + i.subj + ' (' + i.date + ')</option>');
+         });
+   }).always(function() {
+      $('#attachThreadListWrap').removeClass('loading');
+      $('#attachThreadSearchButton').removeClass('disabled');
+      attachThreadChanged();
+   });
+   return false;
+}
+
+function attachThread() {
+   $('#attachThreadList').find('option').remove();
+   $('#attachThreadMessageId').val('');
+   $('#attachModal').modal();
+   findLatestThreads();
+}
+
+function detachThread(cfid, patchid, msgid) {
+   if (confirm('Are you sure you want to detach the thread with messageid "' + msgid + '" from this patch?')) {
+      $.post('/ajax/detachThread/', {
+         'cf': cfid,
+         'p': patchid,
+         'msg': msgid,
+      }).success(function(data) {
+         location.reload();
+      }).fail(function(data) {
+         alert('Failed to detach thread!');
+      });
+   }
+}
+
+function attachThreadChanged() {
+   if ($('#attachThreadList').val() || $('#attachThreadMessageId').val()) {
+      $('#doAttachThreadButton').removeClass('disabled');
+   }
+   else {
+      $('#doAttachThreadButton').addClass('disabled');
+   }
+}
+
+function doAttachThread(cfid, patchid) {
+   v = $('#attachThreadMessageId').val();
+   if (!v || v == '') {
+      v = $('#attachThreadList').val();
+      if (!v) return;
+   }
+
+   $('#attachThreadListWrap').addClass('loading');
+   $('#attachThreadSearchButton').addClass('disabled');
+   $('#attachThreadButton').addClass('disabled');
+
+   $.post('/ajax/attachThread/', {
+      'cf': cfid,
+      'p': patchid,
+      'msg': $('#attachThreadList').val(),
+   }).success(function(data) {
+      location.reload();
+   }).fail(function(data) {
+      if (data.status == 404) {
+         alert('Message with specified messageid not found');
+      }
+      else if (data.status == 503) {
+         alert('Failed to attach thread: ' + data.responseText);
+      }
+      else {
+         alert('Failed to attach thread: ' + data.statusText);
+      }
+      $('#attachThreadListWrap').removeClass('loading');
+      $('#attachThreadSearchButton').removeClass('disabled');
+      attachThreadChanged();
+   });
+}
+
+/* Run on startup */
+$(document).ready(function() {
+   $('button.close-nofloat').each(function(i,o) {
+      $(o).tooltip();
+   });
+});
+</script>
+{%endblock%}

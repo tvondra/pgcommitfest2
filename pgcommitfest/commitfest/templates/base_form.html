@@ -1,0 +1,48 @@
+{%extends "base.html"%}
+{%load selectable_tags%}
+{%load commitfest%}
+
+{%block contents%}
+<style>
+.form-horizontal div.control-group {
+   margin-bottom: 10px;
+}
+div.control-group div.controls ul {
+   list-style-type: none;
+}
+div.control-group div.controls ul li {
+   display: inline;
+}
+div.control-group div.controls ul li label {
+   display: inline;
+}
+</style>
+<form class="form-horizontal" method="POST" action=".">{%csrf_token%}
+{%if form.errors%}
+ <div class="alert">Please correct the errors below, and re-submit the form.</div>
+{%endif%}
+{%if form.non_field_errors%}
+ <div class="alert alert-error">{{form.non_field_errors}}</div>
+{%endif%}
+{%if note%}
+<div class="alert alert-info">{{note|safe}}</div>
+{%endif%}
+ {%for field in form%}
+ <div class="control-group">
+   {{field|label_class:"control-label"}}
+   <div class="controls">
+  {%if field.errors %}
+   {%for e in field.errors%}
+ <div class="alert alert-error">{{e}}</div>
+   {%endfor%}
+  {%endif%}
+{{field}}
+{%if field.help_text%}<br/>{{field.help_text|safe}}{%endif%}</div>
+ </div>
+{%endfor%}
+ <div class="control-group">
+  <div class="control"><input type="submit" class="btn" value="{{savebutton|default:"Save"}}"></div>
+ </div>
+</form>
+
+{%endblock%}

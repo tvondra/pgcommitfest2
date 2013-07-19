@@ -1,0 +1,45 @@
+{%extends "base.html"%}
+{%load commitfest %}
+{%block contents%}
+<p>
+This is commitfest {{cf}}.
+</p>
+
+{%for p in patches %}
+{%ifchanged p.is_open%}
+{%if not forloop.first%}
+ </tbody>
+</table>
+{%endif%}
+<h3>{{p.is_open|yesno:"Active patches,Closed patches"}}</h3>
+<table class="table table-striped table-bordered table-hover table-condensed">
+ <thead>
+  <tr>
+   <th>Patch</th>
+   <th>Status</th>
+   <th>Author</th>
+   <th>Reviewers</th>
+   <th>Last act</th>
+  </tr>
+ </thead>
+ <tbody>
+{%endifchanged%}
+
+{%ifchanged p.topic%}
+  <tr><th colspan="5">{{p.topic}}</th></tr>
+{%endifchanged%} 
+  <tr>
+   <td><a href="{{p.id}}/">{{p}}</a></td>
+   <td><span class="label">{{p.status|patchstatusstring}}</span></td>
+   <td>{{p.author_names|default:''}}</td>
+   <td>{{p.reviewer_names|default:''}}</td>
+   <td style="white-space: nowrap;">{{p.modified}}</td>
+  </tr>
+{%endfor%}
+ </tbody>
+</table>
+
+<p>
+<a class="btn" href="new/edit/">New patch</a>
+</p>
+{%endblock%}

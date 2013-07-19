@@ -1,0 +1,11 @@
+{%extends "base.html"%}
+{%block contents%}
+<p>
+The following commitfests exist.
+</p>
+<ul>
+{%for c in commitfests%}
+ <li><a href="/{{c.id}}/">{{c}}</a> ({{c.statusstring}})</li>
+{%endfor%}
+</ul>
+{%endblock%}
