@@ -1,7 +1,9 @@
 {%extends "base.html"%}
 {%block contents%}
 <p>
-The following commitfests exist.
+The following commitfests exist in the system.
+{%if inprogresscf%}Current review work is done in commitfest <a href="/{{inprogresscf.id}}/">{{inprogresscf}}</a>.{%endif%}
+{%if opencf%}New patches should be submitted to commitfest <a href="/{{opencf.id}}/">{{opencf}}</a>.{%endif%}
 </p>
 <ul>
 {%for c in commitfests%}

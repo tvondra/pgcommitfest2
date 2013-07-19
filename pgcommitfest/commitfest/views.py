@@ -16,9 +16,14 @@ from forms import PatchForm, NewPatchForm, CommentForm
 from ajax import doAttachThread
 
 def home(request):
-	commitfests = CommitFest.objects.all()
+	commitfests = list(CommitFest.objects.all())
+	opencf = next((c for c in commitfests if c.status == CommitFest.STATUS_OPEN), None)
+	inprogresscf = next((c for c in commitfests if c.status == CommitFest.STATUS_INPROGRESS), None)
+
 	return render_to_response('home.html', {
 		'commitfests': commitfests,
+		'opencf': opencf,
+		'inprogresscf': inprogresscf,
 		'title': 'Commitfests',
 		}, context_instance=RequestContext(request))
 

@@ -1,10 +1,6 @@
 {%extends "base.html"%}
 {%load commitfest %}
 {%block contents%}
-<p>
-This is commitfest {{cf}}.
-</p>
-
 {%for p in patches %}
 {%ifchanged p.is_open%}
 {%if not forloop.first%}
