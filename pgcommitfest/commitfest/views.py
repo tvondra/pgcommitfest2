@@ -1,5 +1,5 @@
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.template import RequestContext
 from django.db import transaction
 from django.contrib import messages
@@ -13,6 +13,7 @@ from mailqueue.util import send_mail
 
 from models import CommitFest, Patch, PatchOnCommitFest, PatchHistory, Committer
 from forms import PatchForm, NewPatchForm, CommentForm
+from ajax import doAttachThread
 
 def home(request):
 	commitfests = CommitFest.objects.all()
@@ -99,7 +100,22 @@ def newpatch(request, cfid):
 	if request.method == 'POST':
 		form = NewPatchForm(data=request.POST)
 		if form.is_valid():
-			raise Exception("Do something")
+			patch = Patch(name=form.cleaned_data['name'],
+						  topic=form.cleaned_data['topic'])
+			patch.set_modified()
+			patch.save()
+			poc = PatchOnCommitFest(patch=patch, commitfest=cf, enterdate=datetime.now())
+			poc.save()
+			# Now add the thread
+			try:
+				doAttachThread(cf, patch, form.cleaned_data['threadmsgid'], request.user)
+				return HttpResponseRedirect("/%s/%s/" % (cf.id, patch.id))
+			except Http404:
+				# Thread not found!
+				# This is a horrible breakage of API layers
+				form._errors['threadmsgid'] = form.error_class(('Selected thread did not exist',))
+			except Exception:
+				form._errors['threadmsgid'] = form.error_class(('An error occurred looking up the thread in the archives.',))
 	else:
 		form = NewPatchForm()
 

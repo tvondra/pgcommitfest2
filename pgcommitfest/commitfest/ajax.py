@@ -74,14 +74,19 @@ def attachThread(request):
 	patch = get_object_or_404(Patch, pk=int(request.POST['p']), commitfests=cf)
 	msgid = request.POST['msg']
 
-	
+	if doAttachThread(cf, patch, msgid, request.user):
+		return 'OK'
+	else:
+		raise Exception("Something happened that cannot happen")
+
+def doAttachThread(cf, patch, msgid, user):
 	r = sorted(_archivesAPI('/message-id.json/%s' % msgid), key=lambda x: x['date'])
 	# We have the full thread metadata - using the first and last entry,
 	# construct a new mailthread in our own model.
 	# First, though, check if it's already there.
 	if MailThread.objects.filter(messageid=r[0]['msgid'], patch=patch).exists():
 		# It already existed. Pretend everything is fine.
-		return 'OK'
+		return True
 
 	# Now create a new mailthread entry
 	m = MailThread(messageid=r[0]['msgid'],
@@ -96,11 +101,11 @@ def attachThread(request):
 				   )
 	m.save()
 	parse_and_add_attachments(r, m)
-	PatchHistory(patch=patch, by=request.user, what='Attached mail thread %s' % r[0]['msgid']).save()
+	PatchHistory(patch=patch, by=user, what='Attached mail thread %s' % r[0]['msgid']).save()
 	patch.set_modified()
 	patch.save()
 
-	return 'OK'
+	return True
 
 @transaction.commit_on_success
 def detachThread(request):

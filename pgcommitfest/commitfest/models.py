@@ -94,7 +94,7 @@ class Patch(models.Model):
 		# current timestamp.
 		if not newmod:
 			newmod = datetime.now()
-		if newmod > self.modified:
+		if not self.modified or newmod > self.modified:
 			self.modified = newmod
 
 	def __unicode__(self):
