@@ -34,6 +34,10 @@ class CommitFest(models.Model):
 	def statusstring(self):
 		return [v for k,v in self._STATUS_CHOICES if k==self.status][0]
 
+	@property
+	def isopen(self):
+		return self.status == self.STATUS_OPEN
+
 	def __unicode__(self):
 		return self.name
 

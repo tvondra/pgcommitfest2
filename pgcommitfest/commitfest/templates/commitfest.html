@@ -39,7 +39,9 @@ This is commitfest {{cf}}.
  </tbody>
 </table>
 
+{%if cf.isopen or user.is_staff %}
 <p>
 <a class="btn" href="new/">New patch</a>
 </p>
+{%endif%}
 {%endblock%}

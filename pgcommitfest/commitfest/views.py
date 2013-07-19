@@ -97,6 +97,9 @@ def patchform(request, cfid, patchid):
 @transaction.commit_on_success
 def newpatch(request, cfid):
 	cf = get_object_or_404(CommitFest, pk=cfid)
+	if not cf.status == CommitFest.STATUS_OPEN and not request.user.is_staff:
+		raise Http404("This commitfest is not open!")
+
 	if request.method == 'POST':
 		form = NewPatchForm(data=request.POST)
 		if form.is_valid():
