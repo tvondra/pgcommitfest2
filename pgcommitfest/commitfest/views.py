@@ -12,7 +12,7 @@ from email.utils import formatdate, make_msgid
 from mailqueue.util import send_mail
 
 from models import CommitFest, Patch, PatchOnCommitFest, PatchHistory, Committer
-from forms import PatchForm, CommentForm
+from forms import PatchForm, NewPatchForm, CommentForm
 
 def home(request):
 	commitfests = CommitFest.objects.all()
@@ -66,12 +66,7 @@ def patch(request, cfid, patchid):
 @transaction.commit_on_success
 def patchform(request, cfid, patchid):
 	cf = get_object_or_404(CommitFest, pk=cfid)
-
-	if patchid == 'new':
-		patch = Patch()
-	else:
-		#XXX: also filter that it exists on this cf!
-		patch = get_object_or_404(Patch, pk=patchid)
+	patch = get_object_or_404(Patch, pk=patchid, commitfests=cf)
 
 	if request.method == 'POST':
 		form = PatchForm(data=request.POST, instance=patch)
@@ -82,30 +77,39 @@ def patchform(request, cfid, patchid):
 
 			r.set_modified()
 			r.save()
-			if patchid == 'new':
-				poc = PatchOnCommitFest(patch=r, commitfest=cf, enterdate=datetime.today())
-				poc.save()
 			form.save_m2m()
 			return HttpResponseRedirect('../../%s/' % r.pk)
 		# Else fall through and render the page again
 	else:
 		form = PatchForm(instance=patch)
 
-	if patchid=='new':
-		title = 'New patch'
-		breadcrumbs = [{'title': cf.name, 'href': '/%s/' % cf.pk},]
-	else:
-		title = 'Edit patch'
-		breadcrumbs = [{'title': cf.name, 'href': '/%s/' % cf.pk},
-		 {'title': 'View patch', 'href': '/%s/%s/' % (cf.pk, patch.pk)}]
-
 	return render_to_response('base_form.html', {
 		'cf': cf,
 		'form': form,
 		'patch': patch,
-		'title': title,
-		'breadcrumbs': breadcrumbs,
-		}, context_instance=RequestContext(request))
+		'title': 'Edit patch',
+		'breadcrumbs': [{'title': cf.name, 'href': '/%s/' % cf.pk},
+						{'title': 'View patch', 'href': '/%s/%s/' % (cf.pk, patch.pk)}],
+	}, context_instance=RequestContext(request))
+
+@login_required
+@transaction.commit_on_success
+def newpatch(request, cfid):
+	cf = get_object_or_404(CommitFest, pk=cfid)
+	if request.method == 'POST':
+		form = NewPatchForm(data=request.POST)
+		if form.is_valid():
+			raise Exception("Do something")
+	else:
+		form = NewPatchForm()
+
+	return render_to_response('base_form.html', {
+		'form': form,
+		'title': 'New patch',
+		'breadcrumbs': [{'title': cf.name, 'href': '/%s/' % cf.pk},],
+		'savebutton': 'Create patch',
+		'threadbrowse': True,
+	}, context_instance=RequestContext(request))
 
 def _review_status_string(reviewstatus):
 	if '0' in reviewstatus:

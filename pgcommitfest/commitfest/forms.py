@@ -5,6 +5,7 @@ from selectable.forms.widgets import AutoCompleteSelectMultipleWidget
 
 from models import Patch, MailThread
 from lookups import UserLookup
+from widgets import ThreadPickWidget
 from ajax import _archivesAPI
 
 class PatchForm(forms.ModelForm):
@@ -22,6 +23,14 @@ class PatchForm(forms.ModelForm):
 		self.fields['reviewers'].help_text = 'Enter part of name to see list'
 		self.fields['committer'].label_from_instance = lambda x: '%s %s (%s)' % (x.user.first_name, x.user.last_name, x.user.username)
 
+
+class NewPatchForm(forms.ModelForm):
+	threadmsgid = forms.CharField(max_length=200, required=True, label='Specify thread msgid', widget=ThreadPickWidget)
+	patchfile = forms.FileField(allow_empty_file=False, max_length=50000, label='or upload patch file', required=False, help_text='This may be supported sometime in the future, and would then autogenerate a mail to the hackers list. At such a time, the threadmsgid would no longer be required.')
+
+	class Meta:
+		model = Patch
+		exclude = ('commitfests', 'mailthreads', 'modified', 'authors', 'reviewers', 'committer', 'wikilink', 'gitlink', )
 
 def _fetch_thread_choices(patch):
 	for mt in patch.mailthread_set.order_by('-latestmessage'):
