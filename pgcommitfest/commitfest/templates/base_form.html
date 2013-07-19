@@ -45,4 +45,26 @@ div.control-group div.controls ul li label {
  </div>
 </form>
 
+{%if threadbrowse %}
+{%include "thread_attach.inc" %}
+{%endif%}
 {%endblock%}
+
+{%if threadbrowse %}
+{%block morescript%}
+<script>
+$(document).ready(function() {
+   $('button.attachThreadButton').each(function (i,o) {
+      var b = $(o);
+      b.click(function() {
+         browseThreads(function(msgid) {
+            b.prev().val(msgid);
+            return true;
+         });
+         return false;
+      });
+   });
+});
+</script>
+{%endblock%}
+{%endif%}
