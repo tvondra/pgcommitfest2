@@ -2,6 +2,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.template import RequestContext
 from django.db import transaction
+from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
@@ -12,7 +13,7 @@ from email.utils import formatdate, make_msgid
 from mailqueue.util import send_mail
 
 from models import CommitFest, Patch, PatchOnCommitFest, PatchHistory, Committer
-from forms import PatchForm, NewPatchForm, CommentForm
+from forms import PatchForm, NewPatchForm, CommentForm, CommitFestFilterForm
 from ajax import doAttachThread
 
 def home(request):
@@ -30,16 +31,45 @@ def home(request):
 def commitfest(request, cfid):
 	# Find ourselves
 	cf = get_object_or_404(CommitFest, pk=cfid)
-	patches = cf.patch_set.all().select_related().extra(select={
+
+	# Build a dynamic filter based on the filtering options entered
+	q = Q()
+	if request.GET.has_key('status') and request.GET['status'] != "-1":
+		q = q & Q(patchoncommitfest__status=int(request.GET['status']))
+	if request.GET.has_key('author') and request.GET['author'] != "-1":
+		if request.GET['author'] == '-2':
+			q = q & Q(authors=None)
+		else:
+			q = q & Q(authors__id=int(request.GET['author']))
+	if request.GET.has_key('reviewer') and request.GET['reviewer'] != "-1":
+		if request.GET['reviewer'] == '-2':
+			q = q & Q(reviewers=None)
+		else:
+			q = q & Q(reviewers__id=int(request.GET['reviewer']))
+
+	if request.GET.has_key('text') and request.GET['text'] != '':
+		q = q & Q(name__icontains=request.GET['text'])
+
+	# Not sure if this is correct?
+	has_filter = len(q.children) > 0
+	if not has_filter and request.GET:
+		# Redirect to get rid of the ugly url
+		return HttpResponseRedirect('/%s/' % cf.id)
+
+	patches = cf.patch_set.filter(q).select_related().extra(select={
 		'status':'commitfest_patchoncommitfest.status',
 		'author_names':"SELECT string_agg(first_name || ' ' || last_name || ' (' || username || ')', ', ') FROM auth_user INNER JOIN commitfest_patch_authors cpa ON cpa.user_id=auth_user.id WHERE cpa.patch_id=commitfest_patch.id",
 		'reviewer_names':"SELECT string_agg(first_name || ' ' || last_name || ' (' || username || ')', ', ') FROM auth_user INNER JOIN commitfest_patch_reviewers cpr ON cpr.user_id=auth_user.id WHERE cpr.patch_id=commitfest_patch.id",
 		'is_open':'commitfest_patchoncommitfest.status IN (%s)' % ','.join([str(x) for x in PatchOnCommitFest.OPEN_STATUSES]),
 	}).order_by('-is_open', 'topic__topic', 'created')
 
+	form = CommitFestFilterForm(cf, request.GET)
+
 	return render_to_response('commitfest.html', {
 		'cf': cf,
+		'form': form,
 		'patches': patches,
+		'has_filter': has_filter,
 		'title': 'Commitfest %s' % cf.name,
 		}, context_instance=RequestContext(request))
 

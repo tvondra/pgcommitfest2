@@ -1,12 +1,34 @@
 from django import forms
 from django.forms import ValidationError
+from django.db.models import Q
+from django.contrib.auth.models import User
 
 from selectable.forms.widgets import AutoCompleteSelectMultipleWidget
 
-from models import Patch, MailThread
+from models import Patch, MailThread, PatchOnCommitFest
 from lookups import UserLookup
 from widgets import ThreadPickWidget
 from ajax import _archivesAPI
+
+class CommitFestFilterForm(forms.Form):
+	text = forms.CharField(max_length=50, required=False)
+	status = forms.ChoiceField(required=False)
+	author = forms.ChoiceField(required=False)
+	reviewer = forms.ChoiceField(required=False)
+
+	def __init__(self, cf, *args, **kwargs):
+		super(CommitFestFilterForm, self).__init__(*args, **kwargs)
+
+		c = [(-1, '* All')] + list(PatchOnCommitFest._STATUS_CHOICES)
+		self.fields['status'] = forms.ChoiceField(choices=c, required=False)
+
+		q = Q(patch_author__commitfests=cf) | Q(patch_reviewer__commitfests=cf)
+		userchoices = [(-1, '* All'), (-2, '* None'), ] + [(u.id, '%s %s (%s)' % (u.first_name, u.last_name, u.username)) for u in User.objects.filter(q).distinct()]
+		self.fields['author'] = forms.ChoiceField(choices=userchoices, required=False)
+		self.fields['reviewer'] = forms.ChoiceField(choices=userchoices, required=False)
+
+		for f in ('status', 'author', 'reviewer',):
+			self.fields[f].widget.attrs = {'class': 'input-medium'}
 
 class PatchForm(forms.ModelForm):
 	class Meta:

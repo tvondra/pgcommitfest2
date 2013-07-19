@@ -68,8 +68,8 @@ class Patch(models.Model):
 	# Mailthreads are OneToMany in the other direction
 	#mailthreads_set = ...
 
-	authors = models.ManyToManyField(User, related_name='author', blank=True)
-	reviewers = models.ManyToManyField(User, related_name='reviewer', blank=True)
+	authors = models.ManyToManyField(User, related_name='patch_author', blank=True)
+	reviewers = models.ManyToManyField(User, related_name='patch_reviewer', blank=True)
 
 	committer = models.ForeignKey(Committer, blank=True, null=True)
 

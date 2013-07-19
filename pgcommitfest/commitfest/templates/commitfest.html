@@ -1,6 +1,36 @@
 {%extends "base.html"%}
 {%load commitfest %}
 {%block contents%}
+
+<div class="accordion" id="filteraccordion">
+ <div class="accordion-group">
+  <div class="accordion-heading">
+    <a class="accordion-toggle" data-toggle="collapse" data-parent="#filteraccordion" href="#collapseFilters"><h4>Filters</h4></a>
+  </div>
+  <div id="collapseFilters" class="accordion-body collapse {%if has_filter%}in{%endif%}">
+    <form id="filterform" method="GET" action=".">
+      <table class="table table-condensed">
+	<thead>
+	  <tr>
+{%for f in form%}
+            <td>{{f.label}}</td>
+{%endfor%}
+	    <td></td>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr>
+{%for f in form%}
+            <td>{{f}}</td>
+{%endfor%}
+	    <td><input type="submit" class="btn" value="Filter"></td>
+	  </tr>
+	</tbody>
+      </table>
+    </form>
+  </div>
+</div>
+
 {%for p in patches %}
 {%ifchanged p.is_open%}
 {%if not forloop.first%}
