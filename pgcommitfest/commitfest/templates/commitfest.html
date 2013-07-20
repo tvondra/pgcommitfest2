@@ -46,20 +46,22 @@
    <th>Author</th>
    <th>Reviewers</th>
    <th>Last act</th>
+   <th>Last mail</th>
   </tr>
  </thead>
  <tbody>
 {%endifchanged%}
 
 {%ifchanged p.topic%}
-  <tr><th colspan="5">{{p.topic}}</th></tr>
+  <tr><th colspan="6">{{p.topic}}</th></tr>
 {%endifchanged%} 
   <tr>
    <td><a href="{{p.id}}/">{{p}}</a></td>
    <td><span class="label">{{p.status|patchstatusstring}}</span></td>
    <td>{{p.author_names|default:''}}</td>
    <td>{{p.reviewer_names|default:''}}</td>
-   <td style="white-space: nowrap;">{{p.modified}}</td>
+   <td style="white-space: nowrap;">{{p.modified|date:"Y-m-d"}}<br/>{{p.modified|date:"H:i"}}</td>
+   <td>What?</td>
   </tr>
 {%endfor%}
  </tbody>
