@@ -68,7 +68,7 @@
 	  Latest at <a href="http://www.postgresql.org/message-id/{{t.latestmsgid}}/">{{t.latestmessage}}</a> by {{t.latestauthor|hidemail}}<br/>
 	  {%for ta in t.mailthreadattachment_set.all%}
 	  {%if forloop.first%}
-	  Latest attachment at <a href="http://www.postgrsql.org/message-id/{{ta.messageid}}/">{{ta.date}}</a> from {{ta.author|hidemail}} <button type="button" class="btn btn-mini" data-toggle="collapse" data-target="#att{{t.pk}}"><i class="icon-plus"></i></button>
+	  Latest attachment at <a href="http://www.postgresql.org/message-id/{{ta.messageid}}/">{{ta.date}}</a> from {{ta.author|hidemail}} <button type="button" class="btn btn-mini" data-toggle="collapse" data-target="#att{{t.pk}}"><i class="icon-plus"></i></button>
            <div id="att{{t.pk}}" class="collapse">
           {%endif%}
            &nbsp;&nbsp;&nbsp;&nbsp;Attachment at <a href="http://www.postgresql.org/message-id/{{ta.messageid}}/">{{ta.date}}</a> from {{ta.author|hidemail}} (Patch: {{ta.ispatch|yesno:"Yes,No,Pending check"}})<br/>
