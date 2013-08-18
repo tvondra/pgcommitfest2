@@ -58,12 +58,16 @@ def getThreads(request):
 
 def parse_and_add_attachments(threadinfo, mailthread):
 	for t in threadinfo:
-		if t['att']:
+		if len(t['atts']):
+			# One or more attachments. For now, we're only actually going
+			# to store and process the first one, even though the API gets
+			# us all of them.
 			MailThreadAttachment.objects.get_or_create(mailthread=mailthread,
 													   messageid=t['msgid'],
 													   defaults={
 														   'date': t['date'],
-														   'author': t['from']
+														   'author': t['from'],
+														   'attachmentid': t['atts'][0],
 													   })
 		# In theory we should remove objects if they don't have an
 		# attachment, but how could that ever happen? Ignore for now.

@@ -184,8 +184,10 @@ class MailThread(models.Model):
 class MailThreadAttachment(models.Model):
 	mailthread = models.ForeignKey(MailThread, null=False, blank=False)
 	messageid = models.CharField(max_length=1000, null=False, blank=False)
+	attachmentid = models.IntegerField(null=False, blank=False)
 	date = models.DateTimeField(null=False, blank=False)
 	author = models.CharField(max_length=500, null=False, blank=False)
+	ispatch = models.NullBooleanField()
 
 	class Meta:
 		ordering = ('-date',)
