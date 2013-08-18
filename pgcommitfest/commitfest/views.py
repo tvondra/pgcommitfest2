@@ -63,6 +63,8 @@ def commitfest(request, cfid):
 		'is_open':'commitfest_patchoncommitfest.status IN (%s)' % ','.join([str(x) for x in PatchOnCommitFest.OPEN_STATUSES]),
 	}).order_by('-is_open', 'topic__topic', 'created')
 
+	# Generates a fairly expensive query, which we shouldn't do unless
+	# the user is logged in. XXX: Figure out how to avoid doing that..
 	form = CommitFestFilterForm(cf, request.GET)
 
 	return render_to_response('commitfest.html', {
