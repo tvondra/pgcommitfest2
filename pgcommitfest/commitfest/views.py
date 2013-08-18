@@ -182,7 +182,12 @@ def comment(request, cfid, patchid, what):
 	is_review = (what=='review')
 
 	if request.method == 'POST':
-		form = CommentForm(patch, is_review, data=request.POST)
+		try:
+			form = CommentForm(patch, is_review, data=request.POST)
+		except Exception, e:
+			messages.add_message(request, messages.ERROR, "Failed to build list of response options from the archives: %s" % e)
+			return HttpResponseRedirect('/%s/%s/' % (cf.id, patch.id))
+
 		if form.is_valid():
 			if is_review:
 				txt = "The following review has been posted through the commitfest application:\n%s\n\n%s" % (
@@ -201,6 +206,9 @@ def comment(request, cfid, patchid, what):
 			msg['Date'] = formatdate(localtime=True)
 			msg['User-Agent'] = 'pgcommitfest'
 			msg['In-Reply-To'] = '<%s>' % form.respid
+			# We just add the "top" messageid and the one we're responding to.
+			# This along with in-reply-to should indicate clearly enough where
+			# in the thread the message belongs.
 			msg['References'] = '<%s> <%s>' % (form.thread.messageid, form.respid)
 			msg['Message-ID'] = make_msgid('pgcf')
 
@@ -212,7 +220,11 @@ def comment(request, cfid, patchid, what):
 
 			return HttpResponseRedirect('/%s/%s/' % (cf.id, patch.id))
 	else:
-		form = CommentForm(patch, is_review)
+		try:
+			form = CommentForm(patch, is_review)
+		except Exception, e:
+			messages.add_message(request, messages.ERROR, "Failed to build list of response options from the archives: %s" % e)
+			return HttpResponseRedirect('/%s/%s/' % (cf.id, patch.id))
 
 	return render_to_response('base_form.html', {
 		'cf': cf,
