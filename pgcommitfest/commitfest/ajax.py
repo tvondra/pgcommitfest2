@@ -106,6 +106,7 @@ def doAttachThread(cf, patch, msgid, user):
 	m.save()
 	parse_and_add_attachments(r, m)
 	PatchHistory(patch=patch, by=user, what='Attached mail thread %s' % r[0]['msgid']).save()
+	patch.update_lastmail()
 	patch.set_modified()
 	patch.save()
 
@@ -119,6 +120,7 @@ def detachThread(request):
 
 	thread.delete()
 	PatchHistory(patch=patch, by=request.user, what='Detached mail thread %s' % request.POST['msg']).save()
+	patch.update_lastmail()
 	patch.set_modified()
 	patch.save()
 

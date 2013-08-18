@@ -77,6 +77,10 @@ class Patch(models.Model):
 	created = models.DateTimeField(blank=False, null=False, auto_now_add=True)
 	modified = models.DateTimeField(blank=False, null=False)
 
+	# Materialize the last time an email was sent on any of the threads
+	# that's attached to this message.
+	lastmail = models.DateTimeField(blank=True, null=True)
+
 	# Some accessors
 	@property
 	def authors_string(self):
@@ -100,6 +104,15 @@ class Patch(models.Model):
 			newmod = datetime.now()
 		if not self.modified or newmod > self.modified:
 			self.modified = newmod
+
+	def update_lastmail(self):
+		# Update the lastmail field, based on the newest email in any of
+		# the threads attached to it.
+		threads = list(self.mailthread_set.all())
+		if len(threads) == 0:
+			self.lastmail = None
+		else:
+			self.lastmail = max(threads, key=lambda t:t.latestmessage).latestmessage
 
 	def __unicode__(self):
 		return self.name

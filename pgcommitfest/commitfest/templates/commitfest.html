@@ -45,8 +45,8 @@
    <th>Status</th>
    <th>Author</th>
    <th>Reviewers</th>
-   <th>Last act</th>
-   <th>Last mail</th>
+   <th>Latest act</th>
+   <th>Latest mail</th>
   </tr>
  </thead>
  <tbody>
@@ -61,7 +61,7 @@
    <td>{{p.author_names|default:''}}</td>
    <td>{{p.reviewer_names|default:''}}</td>
    <td style="white-space: nowrap;">{{p.modified|date:"Y-m-d"}}<br/>{{p.modified|date:"H:i"}}</td>
-   <td>What?</td>
+   <td style="white-space: nowrap;">{{p.lastmail|date:"Y-m-d"}}<br/>{{p.lastmail|date:"H:i"}}</td>
   </tr>
 {%endfor%}
  </tbody>
