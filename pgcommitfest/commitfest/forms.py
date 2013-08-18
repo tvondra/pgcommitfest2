@@ -52,7 +52,7 @@ class NewPatchForm(forms.ModelForm):
 
 	class Meta:
 		model = Patch
-		exclude = ('commitfests', 'mailthreads', 'modified', 'authors', 'reviewers', 'committer', 'wikilink', 'gitlink', )
+		exclude = ('commitfests', 'mailthreads', 'modified', 'authors', 'reviewers', 'committer', 'wikilink', 'gitlink', 'lastmail', )
 
 def _fetch_thread_choices(patch):
 	for mt in patch.mailthread_set.order_by('-latestmessage'):
