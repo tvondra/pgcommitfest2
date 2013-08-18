@@ -33,7 +33,7 @@ class CommitFestFilterForm(forms.Form):
 class PatchForm(forms.ModelForm):
 	class Meta:
 		model = Patch
-		exclude = ('commitfests', 'mailthreads', 'modified', )
+		exclude = ('commitfests', 'mailthreads', 'modified', 'lastmail', )
 		widgets = {
 			'authors': AutoCompleteSelectMultipleWidget(lookup_class=UserLookup, position='top'),
 			'reviewers': AutoCompleteSelectMultipleWidget(lookup_class=UserLookup, position='top'),
