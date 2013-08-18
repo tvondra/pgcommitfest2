@@ -232,6 +232,7 @@ def comment(request, cfid, patchid, what):
 		'cf': cf,
 		'form': form,
 		'patch': patch,
+		'extraformclass': 'patchcommentform',
 		'breadcrumbs': [{'title': cf.name, 'href': '/%s/' % cf.pk},
 						{'title': 'View patch', 'href': '/%s/%s/' % (cf.pk, patch.pk)}],
 		'title': "Add %s" % what,

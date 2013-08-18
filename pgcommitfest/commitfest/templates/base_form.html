@@ -10,14 +10,14 @@
 div.control-group div.controls ul {
    list-style-type: none;
 }
-div.control-group div.controls ul li {
+form.patchcommentform div.control-group div.controls ul li {
    display: inline;
 }
 div.control-group div.controls ul li label {
    display: inline;
 }
 </style>
-<form class="form-horizontal" method="POST" action=".">{%csrf_token%}
+<form class="form-horizontal {{extraformclass}}" method="POST" action=".">{%csrf_token%}
 {%if form.errors%}
  <div class="alert">Please correct the errors below, and re-submit the form.</div>
 {%endif%}
