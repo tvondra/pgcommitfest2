@@ -287,7 +287,7 @@ def close(request, cfid, patchid, status):
 		# have checked that we're not closed yet. Therefor, we don't
 		# need to check if the individual status has changed.
 		if status == 'reject':
-			poc.status = PatchOnCommitFest.STATUS_REJECT
+			poc.status = PatchOnCommitFest.STATUS_REJECTED
 		elif status == 'feedback':
 			poc.status = PatchOnCommitFest.STATUS_RETURNED
 			# Figure out the commitfest to actually put it on
@@ -314,7 +314,7 @@ def close(request, cfid, patchid, status):
 		else:
 			raise Exception("Can't happen")
 
-		poc.patch.set_mofified()
+		poc.patch.set_modified()
 		poc.patch.save()
 		poc.save()
 
