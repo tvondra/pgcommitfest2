@@ -11,8 +11,14 @@ class PatchAdmin(admin.ModelAdmin):
 	list_display = ('name', )
 #	list_filter = ('commitfests_set__commitfest__name',)
 
+class MailThreadAttachmentAdmin(admin.ModelAdmin):
+	list_display = ('date', 'author', 'messageid', 'mailthread',)
+
 admin.site.register(Committer)
 admin.site.register(CommitFest)
 admin.site.register(Topic)
 admin.site.register(Patch, PatchAdmin)
 admin.site.register(PatchHistory)
+
+admin.site.register(MailThread)
+admin.site.register(MailThreadAttachment, MailThreadAttachmentAdmin)
