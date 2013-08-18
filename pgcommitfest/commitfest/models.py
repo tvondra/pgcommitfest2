@@ -3,6 +3,8 @@ from django.contrib.admin.models import User
 
 from datetime import datetime
 
+from util import DiffableModel
+
 # We have few enough of these, and it's really the only thing we
 # need to extend from the user model, so just create a separate
 # class.
@@ -52,7 +54,7 @@ class Topic(models.Model):
 		return self.topic
 
 
-class Patch(models.Model):
+class Patch(models.Model, DiffableModel):
 	name = models.CharField(max_length=500, blank=False, null=False, verbose_name='Description')
 	topic = models.ForeignKey(Topic, blank=False, null=False)
 
@@ -81,6 +83,10 @@ class Patch(models.Model):
 	# that's attached to this message.
 	lastmail = models.DateTimeField(blank=True, null=True)
 
+	map_manytomany_for_diff = {
+		'authors': 'authors_string',
+		'reviewers': 'reviewers_string',
+		}
 	# Some accessors
 	@property
 	def authors_string(self):

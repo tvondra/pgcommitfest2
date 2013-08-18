@@ -113,9 +113,13 @@ def patchform(request, cfid, patchid):
 			r = form.save(commit=False)
 			# Fill out any locked fields here
 
+			form.save_m2m()
+
+			# Track all changes
+			for field, values in r.diff.items():
+				PatchHistory(patch=patch, by=request.user, what='Changed %s to %s' % (field, values[1])).save()
 			r.set_modified()
 			r.save()
-			form.save_m2m()
 			return HttpResponseRedirect('../../%s/' % r.pk)
 		# Else fall through and render the page again
 	else:
