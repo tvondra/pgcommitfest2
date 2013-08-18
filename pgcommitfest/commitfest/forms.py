@@ -86,7 +86,10 @@ class CommentForm(forms.Form):
 
 		self.fields['responseto'].choices = _fetch_thread_choices(patch)
 		if not is_review:
-			del self.fields['reviewtype']
+			del self.fields['review_installcheck']
+			del self.fields['review_implements']
+			del self.fields['review_spec']
+			del self.fields['review_doc']
 
 	def clean_responseto(self):
 		try:
