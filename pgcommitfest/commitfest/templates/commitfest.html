@@ -23,7 +23,10 @@
 {%for f in form%}
             <td>{{f}}</td>
 {%endfor%}
-	    <td><input type="submit" class="btn" value="Filter"></td>
+	    <td>
+	      <input type="submit" class="btn" value="Filter">
+	      <a class="btn" href=".">Clear</a>
+	    </td>
 	  </tr>
 	</tbody>
       </table>
