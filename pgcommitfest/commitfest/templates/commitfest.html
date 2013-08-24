@@ -2,14 +2,16 @@
 {%load commitfest %}
 {%block contents%}
 
-<div class="accordion" id="filteraccordion">
- <div class="accordion-group">
-  <div class="accordion-heading">
-    <div class="accordion-toggle" data-toggle="collapse" data-parent="#filteraccordion" href="#collapseFilters" style="padding: 4px;">
-      <div class="btn">Filter/search</div>
-    </div>
-  </div>
-  <div id="collapseFilters" class="accordion-body collapse {%if has_filter%}in{%endif%}">
+<button type="button" class="btn{%if has_filter%} active{%endif%}" id="filterButton" onClick="toggleButtonCollapse('filterButton', 'collapseFilters')">Search/filter</button>
+<div class="btn-group">
+  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Shortcuts <span class="caret"></span></a>
+  <ul class="dropdown-menu">
+    <li><a href="?reviewer=-2">Patches with no reviewers</a></li>
+    <li><a href="?author=-3">Patches where you are author</a></li>
+    <li><a href="?reviewer=-3">Patches where you are reviwer</a></li>
+  </ul>
+</div>
+<div id="collapseFilters" class="collapse {%if has_filter%}in{%endif%}">
     <form id="filterform" method="GET" action="." style="margin-bottom: 0px">
       <table class="table table-condensed" style="margin-bottom: 0px">
 	<thead>
@@ -33,7 +35,6 @@
 	</tbody>
       </table>
     </form>
-  </div>
 </div>
 
 {%for p in patches %}

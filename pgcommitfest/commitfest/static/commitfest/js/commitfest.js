@@ -116,3 +116,8 @@ function sortpatches(sortby) {
 
    return false;
 }
+
+function toggleButtonCollapse(buttonId, collapseId) {
+   $('#' + buttonId).button('toggle');
+   $('#' + collapseId).toggleClass('in')
+}
