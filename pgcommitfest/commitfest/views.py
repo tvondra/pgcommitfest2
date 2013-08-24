@@ -39,11 +39,15 @@ def commitfest(request, cfid):
 	if request.GET.has_key('author') and request.GET['author'] != "-1":
 		if request.GET['author'] == '-2':
 			q = q & Q(authors=None)
+		elif request.GET['author'] == '-3':
+			q = q & Q(authors=request.user)
 		else:
 			q = q & Q(authors__id=int(request.GET['author']))
 	if request.GET.has_key('reviewer') and request.GET['reviewer'] != "-1":
 		if request.GET['reviewer'] == '-2':
 			q = q & Q(reviewers=None)
+		elif request.GET['reviewer'] == '-3':
+			q = q & Q(reviewers=request.user)
 		else:
 			q = q & Q(reviewers__id=int(request.GET['reviewer']))
 
