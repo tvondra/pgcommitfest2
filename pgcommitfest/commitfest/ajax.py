@@ -49,7 +49,7 @@ def getThreads(request):
 	search = request.GET.has_key('s') and request.GET['s'] or None
 
 	# Make a JSON api call to the archives server
-	r = _archivesAPI('/list/pgsql-hackers/latest.json', {'n': 100})
+	r = _archivesAPI('/list/pgsql-hackers/latest.json', {'n': 100, 'a': 1})
 	if search:
 		return sorted([x for x in r if x['subj'].lower().find(search)>=0 or x['from'].lower().find(search)>=0], key=lambda x: x['date'], reverse=True)
 	else:
