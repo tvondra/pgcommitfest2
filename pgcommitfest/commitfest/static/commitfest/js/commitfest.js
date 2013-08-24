@@ -109,3 +109,10 @@ function doAttachThread(cfid, patchid, msgid) {
       return false;
    });
 }
+
+function sortpatches(sortby) {
+   $('#id_sortkey').val(sortby);
+   $('#filterform').submit();
+
+   return false;
+}

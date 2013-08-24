@@ -50,9 +50,22 @@ def commitfest(request, cfid):
 	if request.GET.has_key('text') and request.GET['text'] != '':
 		q = q & Q(name__icontains=request.GET['text'])
 
-	# Not sure if this is correct?
 	has_filter = len(q.children) > 0
-	if not has_filter and request.GET:
+
+	# Figure out custom ordering
+	ordering = ['-is_open', 'topic__topic', 'created',]
+	if request.GET.has_key('sortkey'):
+		sortkey=int(request.GET['sortkey'])
+		if sortkey==1:
+			ordering = ['-is_open', 'modified', 'created',]
+		elif sortkey==2:
+			ordering = ['-is_open', 'lastmail', 'created',]
+		else:
+			sortkey=0
+	else:
+		sortkey = 0
+
+	if not has_filter and sortkey==0 and request.GET:
 		# Redirect to get rid of the ugly url
 		return HttpResponseRedirect('/%s/' % cf.id)
 
@@ -61,7 +74,7 @@ def commitfest(request, cfid):
 		'author_names':"SELECT string_agg(first_name || ' ' || last_name || ' (' || username || ')', ', ') FROM auth_user INNER JOIN commitfest_patch_authors cpa ON cpa.user_id=auth_user.id WHERE cpa.patch_id=commitfest_patch.id",
 		'reviewer_names':"SELECT string_agg(first_name || ' ' || last_name || ' (' || username || ')', ', ') FROM auth_user INNER JOIN commitfest_patch_reviewers cpr ON cpr.user_id=auth_user.id WHERE cpr.patch_id=commitfest_patch.id",
 		'is_open':'commitfest_patchoncommitfest.status IN (%s)' % ','.join([str(x) for x in PatchOnCommitFest.OPEN_STATUSES]),
-	}).order_by('-is_open', 'topic__topic', 'created')
+	}).order_by(*ordering)
 
 	# Generates a fairly expensive query, which we shouldn't do unless
 	# the user is logged in. XXX: Figure out how to avoid doing that..
@@ -73,6 +86,8 @@ def commitfest(request, cfid):
 		'patches': patches,
 		'has_filter': has_filter,
 		'title': 'Commitfest %s' % cf.name,
+		'grouping': sortkey==0,
+		'sortkey': sortkey,
 		}, context_instance=RequestContext(request))
 
 def patch(request, cfid, patchid):
