@@ -54,8 +54,9 @@ def commitfest(request, cfid):
 
 	# Figure out custom ordering
 	ordering = ['-is_open', 'topic__topic', 'created',]
-	if request.GET.has_key('sortkey'):
+	if request.GET.has_key('sortkey') and request.GET['sortkey']!='':
 		sortkey=int(request.GET['sortkey'])
+
 		if sortkey==1:
 			ordering = ['-is_open', 'modified', 'created',]
 		elif sortkey==2:
