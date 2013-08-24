@@ -172,7 +172,7 @@ def newpatch(request, cfid):
 			except Http404:
 				# Thread not found!
 				# This is a horrible breakage of API layers
-				form._errors['threadmsgid'] = form.error_class(('Selected thread did not exist',))
+				form._errors['threadmsgid'] = form.error_class(('Selected thread did not exist in the archives',))
 			except Exception:
 				form._errors['threadmsgid'] = form.error_class(('An error occurred looking up the thread in the archives.',))
 	else:
