@@ -16,6 +16,15 @@ form.patchcommentform div.control-group div.controls ul li {
 div.control-group div.controls ul li label {
    display: inline;
 }
+div.controls input,select {
+   width: 90%;
+}
+div.controls input[type='checkbox'] {
+   width: 10px;
+}
+div.controls ul {
+   margin: 0px;
+}
 </style>
 <form class="form-horizontal {{extraformclass}}" method="POST" action=".">{%csrf_token%}
 {%if form.errors%}
