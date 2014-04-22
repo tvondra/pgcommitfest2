@@ -19,6 +19,11 @@ urlpatterns = patterns('',
 
     url(r'^selectable/', include('selectable.urls')),
 
+    # Auth system integration
+    (r'^(?:account/)?login/?$', 'auth.login'),
+    (r'^(?:account/)?logout/?$', 'auth.logout'),
+    (r'^auth_receive/$', 'auth.auth_receive'),
+
     # Examples:
     # url(r'^$', 'pgcommitfest.views.home', name='home'),
     # url(r'^pgcommitfest/', include('pgcommitfest.foo.urls')),
