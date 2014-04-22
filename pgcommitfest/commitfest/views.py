@@ -6,6 +6,8 @@ from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
+import settings
+
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.utils import formatdate, make_msgid
@@ -40,6 +42,9 @@ def commitfest(request, cfid):
 		if request.GET['author'] == '-2':
 			q = q & Q(authors=None)
 		elif request.GET['author'] == '-3':
+			# Checking for "yourself" requires the user to be logged in!
+			if not request.user.is_authenticated():
+				return HttpResponseRedirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
 			q = q & Q(authors=request.user)
 		else:
 			q = q & Q(authors__id=int(request.GET['author']))
@@ -47,6 +52,9 @@ def commitfest(request, cfid):
 		if request.GET['reviewer'] == '-2':
 			q = q & Q(reviewers=None)
 		elif request.GET['reviewer'] == '-3':
+			# Checking for "yourself" requires the user to be logged in!
+			if not request.user.is_authenticated():
+				return HttpResponseRedirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
 			q = q & Q(reviewers=request.user)
 		else:
 			q = q & Q(reviewers__id=int(request.GET['reviewer']))

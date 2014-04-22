@@ -150,6 +150,8 @@ LOGGING = {
 DATE_FORMAT='Y-m-d'
 DATETIME_FORMAT='Y-m-d H:i:s'
 
+LOGIN_URL='/account/login/'
+
 ARCHIVES_TIMEOUT=10    # Seconds to wait for calls to the archives
 ARCHIVES_SERVER="localhost"
 ARCHIVES_PORT="8001"
