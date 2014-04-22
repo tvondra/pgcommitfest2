@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^(\d+)/(\d+)/status/(review|author|committer)/$', 'commitfest.views.status'),
     url(r'^(\d+)/(\d+)/close/(reject|feedback|committed)/$', 'commitfest.views.close'),
     url(r'^(\d+)/(\d+)/reviewer/(become|remove)/$', 'commitfest.views.reviewer'),
+    url(r'^(\d+)/(\d+)/committer/(become|remove)/$', 'commitfest.views.committer'),
     url(r'^(\d+)/(\d+)/(comment|review)/', 'commitfest.views.comment'),
     url(r'^ajax/(\w+)/$', 'commitfest.ajax.main'),
 

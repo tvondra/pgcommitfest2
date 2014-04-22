@@ -1,5 +1,5 @@
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.template import RequestContext
 from django.db import transaction
 from django.db.models import Q
@@ -111,11 +111,18 @@ def patch(request, cfid, patchid):
 	#XXX: this creates a session, so find a smarter way. Probably handle
 	#it in the callback and just ask the user then?
 	if request.user.is_authenticated():
-		is_committer = Committer.objects.filter(user=request.user).exists()
+		committer = list(Committer.objects.filter(user=request.user, active=True))
+		if len(committer) > 0:
+			is_committer=  True
+			is_this_committer = committer[0] == patch.committer
+		else:
+			is_committer = is_this_committer = False
+
 		is_reviewer = request.user in patch.reviewers.all()
 #		is_reviewer = len([x for x in patch.reviewers.all() if x==request.user]) > 0
 	else:
 		is_committer = False
+		is_this_committer = False
 		is_reviewer = False
 
 	return render_to_response('patch.html', {
@@ -123,6 +130,7 @@ def patch(request, cfid, patchid):
 		'patch': patch,
 		'patch_commitfests': patch_commitfests,
 		'is_committer': is_committer,
+		'is_this_committer': is_this_committer,
 		'is_reviewer': is_reviewer,
 		'title': 'View patch',
 		'breadcrumbs': [{'title': cf.name, 'href': '/%s/' % cf.pk},],
@@ -367,4 +375,28 @@ def reviewer(request, cfid, patchid, status):
 		patch.reviewers.remove(request.user)
 		patch.set_modified()
 		PatchHistory(patch=patch, by=request.user, what='Removed self from reviewers').save()
+	return HttpResponseRedirect('../../')
+
+@login_required
+@transaction.commit_on_success
+def committer(request, cfid, patchid, status):
+	get_object_or_404(CommitFest, pk=cfid)
+	patch = get_object_or_404(Patch, pk=patchid)
+
+	committer = list(Committer.objects.filter(user=request.user, active=True))
+	if len(committer) == 0:
+		return HttpResponseForbidden('Only committers can do that!')
+	committer = committer[0]
+
+	is_committer = committer == patch.committer
+
+	if status=='become' and not is_committer:
+		patch.committer = committer
+		patch.set_modified()
+		PatchHistory(patch=patch, by=request.user, what='Added self as committer').save()
+	elif status=='remove' and is_committer:
+		patch.committer = None
+		patch.set_modified()
+		PatchHistory(patch=patch, by=request.user, what='Removed self from committers').save()
+	patch.save()
 	return HttpResponseRedirect('../../')

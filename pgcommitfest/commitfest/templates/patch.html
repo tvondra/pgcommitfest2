@@ -43,7 +43,9 @@
     </tr>
     <tr>
       <th>Committer</th>
-      <td>{%if patch.committer%}{{patch.committer.first_name}} {{patch.committer.last_name}} ({{patch.committer.username}}){%endif%}</td>
+      <td>{%if patch.committer%}{{patch.committer.fullname}}{%endif%}
+{%if is_committer%}<a href="committer/{{is_this_committer|yesno:"remove,become"}}/" class="btn pull-right">{{is_this_committer|yesno:"Unclaim as committer,Claim as committer"}}</a>{%endif%}
+      </td>
     </tr>
     <tr>
       <th>Links</th>

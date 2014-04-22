@@ -15,6 +15,9 @@ class Committer(models.Model):
 	def __unicode__(self):
 		return unicode(self.user)
 
+	@property
+	def fullname(self):
+		return "%s %s (%s)" % (self.user.first_name, self.user.last_name, self.user.username)
 
 class CommitFest(models.Model):
 	STATUS_FUTURE=1
