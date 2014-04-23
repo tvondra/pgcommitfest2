@@ -98,7 +98,7 @@ def commitfest(request, cfid):
 		'form': form,
 		'patches': patches,
 		'has_filter': has_filter,
-		'title': 'Commitfest %s' % cf.name,
+		'title': cf.title,
 		'grouping': sortkey==0,
 		'sortkey': sortkey,
 		}, context_instance=RequestContext(request))
@@ -133,7 +133,7 @@ def patch(request, cfid, patchid):
 		'is_this_committer': is_this_committer,
 		'is_reviewer': is_reviewer,
 		'title': 'View patch',
-		'breadcrumbs': [{'title': cf.name, 'href': '/%s/' % cf.pk},],
+		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},],
 		}, context_instance=RequestContext(request))
 
 @login_required
@@ -166,7 +166,7 @@ def patchform(request, cfid, patchid):
 		'form': form,
 		'patch': patch,
 		'title': 'Edit patch',
-		'breadcrumbs': [{'title': cf.name, 'href': '/%s/' % cf.pk},
+		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},
 						{'title': 'View patch', 'href': '/%s/%s/' % (cf.pk, patch.pk)}],
 	}, context_instance=RequestContext(request))
 
@@ -203,7 +203,7 @@ def newpatch(request, cfid):
 	return render_to_response('base_form.html', {
 		'form': form,
 		'title': 'New patch',
-		'breadcrumbs': [{'title': cf.name, 'href': '/%s/' % cf.pk},],
+		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},],
 		'savebutton': 'Create patch',
 		'threadbrowse': True,
 	}, context_instance=RequestContext(request))
@@ -288,7 +288,7 @@ def comment(request, cfid, patchid, what):
 		'form': form,
 		'patch': patch,
 		'extraformclass': 'patchcommentform',
-		'breadcrumbs': [{'title': cf.name, 'href': '/%s/' % cf.pk},
+		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},
 						{'title': 'View patch', 'href': '/%s/%s/' % (cf.pk, patch.pk)}],
 		'title': "Add %s" % what,
 		'note': '<b>Note!</b> This form will generate an email to the public mailinglist <i>pgsql-hackers</i>, with sender set to %s!' % (request.user.email),

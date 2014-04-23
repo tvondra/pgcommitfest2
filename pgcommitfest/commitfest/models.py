@@ -40,6 +40,10 @@ class CommitFest(models.Model):
 		return [v for k,v in self._STATUS_CHOICES if k==self.status][0]
 
 	@property
+	def title(self):
+		return "Commitfest %s" % self.name
+
+	@property
 	def isopen(self):
 		return self.status == self.STATUS_OPEN
 
