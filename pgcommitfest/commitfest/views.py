@@ -257,7 +257,8 @@ def comment(request, cfid, patchid, what):
 				msg['Subject'] = form.thread.subject
 			else:
 				msg['Subject'] = 'Re: %s' % form.thread.subject
-			msg['To'] = 'magnus@hagander.net'
+
+			msg['To'] = settings.HACKERS_EMAIL
 			msg['From'] = "%s %s <%s>" % (request.user.first_name, request.user.last_name, request.user.email)
 			msg['Date'] = formatdate(localtime=True)
 			msg['User-Agent'] = 'pgcommitfest'
@@ -268,7 +269,7 @@ def comment(request, cfid, patchid, what):
 			msg['References'] = '<%s> <%s>' % (form.thread.messageid, form.respid)
 			msg['Message-ID'] = make_msgid('pgcf')
 
-			send_mail(request.user.email, 'magnus@hagander.net', msg)
+			send_mail(request.user.email, settings.HACKERS_EMAIL, msg)
 
 			PatchHistory(patch=patch, by=request.user, what='Posted %s with messageid %s' % (what, msg['Message-ID'])).save()
 

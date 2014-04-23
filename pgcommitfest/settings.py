@@ -158,5 +158,8 @@ ARCHIVES_SERVER="localhost"
 ARCHIVES_PORT="8001"
 ARCHIVES_HOST="archives.postgresql.org"    # Host: header to send
 
+# Email address to pgsql-hackers. Set to something local to test maybe?
+HACKERS_EMAIL="pgsql-hackers-testing@localhost"
+
 # Load local settings overrides
 from local_settings import *
