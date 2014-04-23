@@ -10,9 +10,9 @@
 <body>
 <div class="container-fluid">
 <ul class="breadcrumb">
- <li><a href="/">Home</a> <span class="divider">/</span></li>
+ <li><a href="/">Home</a></li>
 {%for c in breadcrumbs%}
- <li><a href="{{c.href}}">{{c.title}}</a> <span class="divider">/</span></li>
+ <li><a href="{{c.href}}">{{c.title}}</a></li>
 {%endfor%}
  <li class="active">{{title}}</li>
  <li class="pull-right active">
@@ -36,12 +36,9 @@
 {%endblock%}
 </div>
 <script src="/static/commitfest/js/jquery.js"></script>
-<script src="/static/commitfest/js/bootstrap-dropdown.js"></script>
-<script src="/static/commitfest/js/bootstrap-modal.js"></script>
-<script src="/static/commitfest/js/bootstrap-collapse.js"></script>
 <script src="/static/commitfest/js/jquery-ui.js"></script>
+<script src="/static/commitfest/js/bootstrap.js"></script>
 <script type="text/javascript" src="/static/selectable/js/jquery.dj.selectable.js"></script>
-<script src="/static/commitfest/js/bootstrap-button.js"></script>
 <script src="/static/commitfest/js/commitfest.js"></script>
 {%block morescript%}{%endblock%}
 </html>

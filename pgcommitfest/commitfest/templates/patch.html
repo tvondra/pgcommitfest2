@@ -29,7 +29,7 @@
     <tr>
       <th>Status</th>
       <td>{%for c in patch_commitfests %}
-	{{c.commitfest}}: <span class="label">{{c.statusstring}}</span><br/>
+	{{c.commitfest}}: <span class="label label-default">{{c.statusstring}}</span><br/>
 	{%endfor%}
       </td>
     </tr>
@@ -39,12 +39,12 @@
     </tr>
     <tr>
       <th>Reviewers</th>
-      <td>{{patch.reviewers_string}}<a href="reviewer/{{is_reviewer|yesno:"remove,become"}}/" class="btn pull-right">{{is_reviewer|yesno:"Remove from reviewers,Become reviewer"}}</a></td>
+      <td>{{patch.reviewers_string}}<a href="reviewer/{{is_reviewer|yesno:"remove,become"}}/" class="btn btn-default pull-right">{{is_reviewer|yesno:"Remove from reviewers,Become reviewer"}}</a></td>
     </tr>
     <tr>
       <th>Committer</th>
       <td>{%if patch.committer%}{{patch.committer.fullname}}{%endif%}
-{%if is_committer%}<a href="committer/{{is_this_committer|yesno:"remove,become"}}/" class="btn pull-right">{{is_this_committer|yesno:"Unclaim as committer,Claim as committer"}}</a>{%endif%}
+{%if is_committer%}<a href="committer/{{is_this_committer|yesno:"remove,become"}}/" class="btn btn-default pull-right">{{is_this_committer|yesno:"Unclaim as committer,Claim as committer"}}</a>{%endif%}
       </td>
     </tr>
     <tr>
@@ -58,9 +58,9 @@
       <th>Emails</th>
       <td>
 {%if user.is_authenticated%}
-	<div style="float:right"><button class="btn" onclick="attachThread({{cf.id}},{{patch.id}})">Attach thread</button></div>
+	<div style="float:right"><button class="btn btn-default" onclick="attachThread({{cf.id}},{{patch.id}})">Attach thread</button></div>
 {%else%}
-	<div style="float:right"><button class="btn" onclick="location.href='/login_and_redirect_back'">Attach thread</button></div>
+	<div style="float:right"><button class="btn btn-default" onclick="location.href='/login_and_redirect_back'">Attach thread</button></div>
 {%endif%}
 	<dl>
 	{%for t in patch.mailthread_set.all%}
@@ -70,7 +70,7 @@
 	  Latest at <a href="http://www.postgresql.org/message-id/{{t.latestmsgid}}/">{{t.latestmessage}}</a> by {{t.latestauthor|hidemail}}<br/>
 	  {%for ta in t.mailthreadattachment_set.all%}
 	  {%if forloop.first%}
-	  Latest attachment at <a href="http://www.postgresql.org/message-id/{{ta.messageid}}/">{{ta.date}}</a> from {{ta.author|hidemail}} <button type="button" class="btn btn-mini" data-toggle="collapse" data-target="#att{{t.pk}}" title="Show all attachments"><i class="icon-plus"></i></button>
+	  Latest attachment at <a href="http://www.postgresql.org/message-id/{{ta.messageid}}/">{{ta.date}}</a> from {{ta.author|hidemail}} <button type="button" class="btn btn-default btn-xs" data-toggle="collapse" data-target="#att{{t.pk}}" title="Show all attachments"><i class="glyphicon glyphicon-plus"></i></button>
            <div id="att{{t.pk}}" class="collapse">
           {%endif%}
            &nbsp;&nbsp;&nbsp;&nbsp;Attachment at <a href="http://www.postgresql.org/message-id/{{ta.messageid}}/">{{ta.date}}</a> from {{ta.author|hidemail}} (Patch: {{ta.ispatch|yesno:"Yes,No,Pending check"}})<br/>

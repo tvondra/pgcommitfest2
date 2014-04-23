@@ -15,6 +15,10 @@ def patchstatusstring(value):
 def label_class(value, arg):
 	return value.label_tag(attrs={'class': arg})
 
+@register.filter(is_safe=True)
+def field_class(value, arg):
+	return value.as_widget(attrs={"class": arg})
+
 @register.filter(name='alertmap')
 @stringfilter
 def alertmap(value):
