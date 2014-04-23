@@ -1,4 +1,5 @@
 # Django settings for pgcommitfest project.
+from django.conf import global_settings
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -107,6 +108,11 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 	'../global_template/',
+)
+
+
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+	'django.core.context_processors.request',
 )
 
 INSTALLED_APPS = (
