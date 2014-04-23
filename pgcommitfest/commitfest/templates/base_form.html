@@ -25,6 +25,10 @@ div.controls input[type='checkbox'] {
 div.controls ul {
    margin: 0px;
 }
+div.controls ul.selectable-deck li.selectable-deck-item a.selectable-deck-remove {
+   float: none;
+   margin-left: 20px;
+}
 </style>
 <form class="form-horizontal {{extraformclass}}" method="POST" action=".">{%csrf_token%}
 {%if form.errors%}

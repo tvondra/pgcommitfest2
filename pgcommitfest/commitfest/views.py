@@ -168,6 +168,7 @@ def patchform(request, cfid, patchid):
 		'title': 'Edit patch',
 		'breadcrumbs': [{'title': cf.name, 'href': '/%s/' % cf.pk},
 						{'title': 'View patch', 'href': '/%s/%s/' % (cf.pk, patch.pk)}],
+		'block_bootstrap_button': True,
 	}, context_instance=RequestContext(request))
 
 @login_required
