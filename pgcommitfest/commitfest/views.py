@@ -222,11 +222,16 @@ def _review_status_string(reviewstatus):
 def comment(request, cfid, patchid, what):
 	cf = get_object_or_404(CommitFest, pk=cfid)
 	patch = get_object_or_404(Patch, pk=patchid)
+	poc = get_object_or_404(PatchOnCommitFest, patch=patch, commitfest=cf)
 	is_review = (what=='review')
+
+	if poc.is_closed:
+		messages.add_message(request, messages.INFO, "The status of this patch cannot be changed in this commitfest. You must modify it in the one where it's open!")
+		return HttpResponseRedirect('..')
 
 	if request.method == 'POST':
 		try:
-			form = CommentForm(patch, is_review, data=request.POST)
+			form = CommentForm(patch, poc, is_review, data=request.POST)
 		except Exception, e:
 			messages.add_message(request, messages.ERROR, "Failed to build list of response options from the archives: %s" % e)
 			return HttpResponseRedirect('/%s/%s/' % (cf.id, patch.id))
@@ -237,9 +242,17 @@ def comment(request, cfid, patchid, what):
 					"\n".join(["%-25s %s" % (f.label + ':', _review_status_string(form.cleaned_data[fn])) for (fn, f) in form.fields.items() if fn.startswith('review_')]),
 					form.cleaned_data['message']
 				)
-				msg = MIMEText(txt, _charset='utf-8')
 			else:
-				msg = MIMEText(form.cleaned_data['message'], _charset='utf-8')
+				txt = form.cleaned_data['message']
+
+			if int(form.cleaned_data['newstatus']) != poc.status:
+				poc.status = int(form.cleaned_data['newstatus'])
+				poc.save()
+				PatchHistory(patch=poc.patch, by=request.user, what='New status: %s' % poc.statusstring).save()
+				txt += "\n\nThe new status of this patch is: %s\n" % poc.statusstring
+
+			msg = MIMEText(txt, _charset='utf-8')
+
 			if form.thread.subject.startswith('Re:'):
 				msg['Subject'] = form.thread.subject
 			else:
@@ -264,7 +277,7 @@ def comment(request, cfid, patchid, what):
 			return HttpResponseRedirect('/%s/%s/' % (cf.id, patch.id))
 	else:
 		try:
-			form = CommentForm(patch, is_review)
+			form = CommentForm(patch, poc, is_review)
 		except Exception, e:
 			messages.add_message(request, messages.ERROR, "Failed to build list of response options from the archives: %s" % e)
 			return HttpResponseRedirect('/%s/%s/' % (cf.id, patch.id))

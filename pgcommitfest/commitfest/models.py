@@ -145,6 +145,7 @@ class PatchOnCommitFest(models.Model):
 		(STATUS_REJECTED, 'Rejected'),
 	)
 	OPEN_STATUSES=(STATUS_REVIEW, STATUS_AUTHOR, STATUS_COMMITTER)
+	OPEN_STATUS_CHOICES=[x for x in _STATUS_CHOICES if x[0] in OPEN_STATUSES]
 
 	patch = models.ForeignKey(Patch, blank=False, null=False)
 	commitfest = models.ForeignKey(CommitFest, blank=False, null=False)

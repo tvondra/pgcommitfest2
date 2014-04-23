@@ -82,12 +82,14 @@ class CommentForm(forms.Form):
 	review_doc = reviewfield('Documentation')
 
 	message = forms.CharField(required=True, widget=forms.Textarea)
+	newstatus = forms.ChoiceField(choices=PatchOnCommitFest.OPEN_STATUS_CHOICES, label='New status')
 
-	def __init__(self, patch, is_review, *args, **kwargs):
+	def __init__(self, patch, poc, is_review, *args, **kwargs):
 		super(CommentForm, self).__init__(*args, **kwargs)
 		self.is_review = is_review
 
 		self.fields['responseto'].choices = _fetch_thread_choices(patch)
+		self.fields['newstatus'].initial = poc.status
 		if not is_review:
 			del self.fields['review_installcheck']
 			del self.fields['review_implements']
