@@ -14,7 +14,7 @@
  <ul class="dropdown-menu">
   <li><a href="status/review/">Needs review</a></li>
   <li><a href="status/author/">Waiting on Author</a></li>
-  <li><a href="status/committer/"">Ready for Committer</a></li>
+  <li><a href="status/committer/">Ready for Committer</a></li>
  </ul>
 </div>
 
