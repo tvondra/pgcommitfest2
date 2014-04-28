@@ -24,6 +24,8 @@ def field_class(value, arg):
 def alertmap(value):
 	if value == 'error':
 		return 'alert-danger'
+	elif value == 'warning':
+		return 'alert-warning'
 	elif value == 'success':
 		return 'alert-success'
 	else:

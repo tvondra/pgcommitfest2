@@ -456,6 +456,10 @@ def send_email(request, cfid):
 	else:
 		reviewers = []
 
+	if len(authors)==0 and len(reviewers)==0:
+		messages.add_message(request, messages.WARNING, "No recipients specified, cannot send email")
+		return HttpResponseRedirect('..')
+
 	messages.add_message(request, messages.INFO, "Email will be sent from: %s" % request.user.email)
 	def _user_and_mail(u):
 		return "%s %s (%s)" % (u.first_name, u.last_name, u.email)
