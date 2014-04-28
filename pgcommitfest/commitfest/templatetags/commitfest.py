@@ -22,8 +22,12 @@ def field_class(value, arg):
 @register.filter(name='alertmap')
 @stringfilter
 def alertmap(value):
-	if value in ('error', 'success'): return 'alert-%s' % value
-	return ''
+	if value == 'error':
+		return 'alert-danger'
+	elif value == 'success':
+		return 'alert-success'
+	else:
+		return 'alert-info'
 
 @register.filter(name='hidemail')
 @stringfilter

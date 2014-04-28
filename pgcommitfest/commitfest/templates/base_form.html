@@ -47,7 +47,7 @@ div.form-group div.controls input.threadpick-input {
  <div class="alert">Please correct the errors below, and re-submit the form.</div>
 {%endif%}
 {%if form.non_field_errors%}
- <div class="alert alert-error">{{form.non_field_errors}}</div>
+ <div class="alert alert-danger">{{form.non_field_errors}}</div>
 {%endif%}
 {%if note%}
 <div class="alert alert-info">{{note|safe}}</div>
@@ -58,7 +58,7 @@ div.form-group div.controls input.threadpick-input {
    <div class="col-lg-11 controls">
   {%if field.errors %}
    {%for e in field.errors%}
- <div class="alert alert-error">{{e}}</div>
+ <div class="alert alert-danger">{{e}}</div>
    {%endfor%}
   {%endif%}
 {{field|field_class:"form-control"}}
