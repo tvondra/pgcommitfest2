@@ -87,7 +87,7 @@
 {%endif%}
 {%if user.is_staff%}
  <div class="btn-group dropup">
-  <button type="button" class="btn btn-default dropdown-toggle " data-toggle="dropdown" href="#">Send mail <span class="caret"></span></button>
+  <button type="button" class="btn btn-default dropdown-toggle " data-toggle="dropdown" href="#">Send private mail <span class="caret"></span></button>
   <ul class="dropdown-menu">
     <li><a href="javascript:send_selected()">Selected</a></li>
     <li><a href="send_email/?reviewers={{openpatchids|join:","}}">All reviewers (open patches)</a></li>
