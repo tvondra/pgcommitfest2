@@ -53,6 +53,7 @@ div.form-group div.controls input.threadpick-input {
 <div class="alert alert-info">{{note|safe}}</div>
 {%endif%}
  {%for field in form%}
+ {%if not field.is_hidden%}
  <div class="form-group">
    {{field|label_class:"control-label col-lg-1"}}
    <div class="col-lg-11 controls">
@@ -64,6 +65,9 @@ div.form-group div.controls input.threadpick-input {
 {{field|field_class:"form-control"}}
 {%if field.help_text%}<br/>{{field.help_text|safe}}{%endif%}</div>
  </div>
+ {%else%}
+{{field}}
+ {%endif%}
 {%endfor%}
  <div class="form-group">
   <div class="col-lg-12">
