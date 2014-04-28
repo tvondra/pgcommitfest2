@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import ValidationError
+from django.forms.widgets import HiddenInput
 from django.db.models import Q
 from django.contrib.auth.models import User
 
@@ -114,3 +115,13 @@ class CommentForm(forms.Form):
 					if '1' in self.cleaned_data[fn] and not '0' in self.cleaned_data[fn]:
 						self.errors[fn] = (('Cannot pass a test without performing it!'),)
 		return self.cleaned_data
+
+class BulkEmailForm(forms.Form):
+	reviewers = forms.CharField(required=False, widget=HiddenInput())
+	authors = forms.CharField(required=False, widget=HiddenInput())
+	subject = forms.CharField(required=True)
+	body = forms.CharField(required=True, widget=forms.Textarea)
+	confirm = forms.BooleanField(required=True, label='Check to confirm sending')
+
+	def __init__(self, *args, **kwargs):
+		super(BulkEmailForm, self).__init__(*args, **kwargs)

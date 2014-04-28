@@ -5,6 +5,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 import settings
 
@@ -12,10 +13,11 @@ from datetime import datetime
 from email.mime.text import MIMEText
 from email.utils import formatdate, make_msgid
 
-from mailqueue.util import send_mail
+from mailqueue.util import send_mail, send_simple_mail
 
 from models import CommitFest, Patch, PatchOnCommitFest, PatchHistory, Committer
 from forms import PatchForm, NewPatchForm, CommentForm, CommitFestFilterForm
+from forms import BulkEmailForm
 from ajax import doAttachThread
 
 def home(request):
@@ -82,12 +84,12 @@ def commitfest(request, cfid):
 		# Redirect to get rid of the ugly url
 		return HttpResponseRedirect('/%s/' % cf.id)
 
-	patches = cf.patch_set.filter(q).select_related().extra(select={
+	patches = list(cf.patch_set.filter(q).select_related().extra(select={
 		'status':'commitfest_patchoncommitfest.status',
 		'author_names':"SELECT string_agg(first_name || ' ' || last_name || ' (' || username || ')', ', ') FROM auth_user INNER JOIN commitfest_patch_authors cpa ON cpa.user_id=auth_user.id WHERE cpa.patch_id=commitfest_patch.id",
 		'reviewer_names':"SELECT string_agg(first_name || ' ' || last_name || ' (' || username || ')', ', ') FROM auth_user INNER JOIN commitfest_patch_reviewers cpr ON cpr.user_id=auth_user.id WHERE cpr.patch_id=commitfest_patch.id",
 		'is_open':'commitfest_patchoncommitfest.status IN (%s)' % ','.join([str(x) for x in PatchOnCommitFest.OPEN_STATUSES]),
-	}).order_by(*ordering)
+	}).order_by(*ordering))
 
 	# Generates a fairly expensive query, which we shouldn't do unless
 	# the user is logged in. XXX: Figure out how to avoid doing that..
@@ -101,6 +103,7 @@ def commitfest(request, cfid):
 		'title': cf.title,
 		'grouping': sortkey==0,
 		'sortkey': sortkey,
+		'openpatchids': [p.id for p in patches if p.is_open],
 		}, context_instance=RequestContext(request))
 
 def patch(request, cfid, patchid):
@@ -414,3 +417,57 @@ def committer(request, cfid, patchid, status):
 		PatchHistory(patch=patch, by=request.user, what='Removed self from committers').save()
 	patch.save()
 	return HttpResponseRedirect('../../')
+
+@login_required
+@transaction.commit_on_success
+def send_email(request, cfid):
+	cf = get_object_or_404(CommitFest, pk=cfid)
+	if not request.user.is_staff:
+		raise Http404("Only CF managers can do that.")
+
+	if request.method == 'POST':
+		authoridstring = request.POST['authors']
+		revieweridstring = request.POST['reviewers']
+		form = BulkEmailForm(data=request.POST)
+		if form.is_valid():
+			q = Q()
+			if authoridstring:
+				q = q | Q(patch_author__in=[int(x) for x in authoridstring.split(',')])
+			if revieweridstring:
+				q = q | Q(patch_reviewer__in=[int(x) for x in revieweridstring.split(',')])
+
+			recipients = User.objects.filter(q).distinct()
+
+			for r in recipients:
+				send_simple_mail(request.user.email, r.email, form.cleaned_data['subject'], form.cleaned_data['body'])
+				messages.add_message(request, messages.INFO, "Sent email to %s" % r.email)
+			return HttpResponseRedirect('..')
+	else:
+		authoridstring = request.GET.get('authors', None)
+		revieweridstring = request.GET.get('reviewers', None)
+		form = BulkEmailForm(initial={'authors': authoridstring, 'reviewers': revieweridstring})
+
+	if authoridstring:
+		authors = list(User.objects.filter(patch_author__in=[int(x) for x in authoridstring.split(',')]).distinct())
+	else:
+		authors = []
+	if revieweridstring:
+		reviewers = list(User.objects.filter(patch_reviewer__in=[int(x) for x in revieweridstring.split(',')]).distinct())
+	else:
+		reviewers = []
+
+	messages.add_message(request, messages.INFO, "Email will be sent from: %s" % request.user.email)
+	def _user_and_mail(u):
+		return "%s %s (%s)" % (u.first_name, u.last_name, u.email)
+
+	if len(authors):
+		messages.add_message(request, messages.INFO, "The email will be sent to the following authors: %s" % ", ".join([_user_and_mail(u) for u in authors]))
+	if len(reviewers):
+		messages.add_message(request, messages.INFO, "The email will be sent to the following reviewers: %s" % ", ".join([_user_and_mail(u) for u in reviewers]))
+
+	return render_to_response('base_form.html', {
+		'cf': cf,
+		'form': form,
+		'title': 'Send email',
+		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},],
+	}, context_instance=RequestContext(request))

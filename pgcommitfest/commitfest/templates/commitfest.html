@@ -53,6 +53,9 @@
    <th>Reviewers</th>
    <th>{%if p.is_open%}<a href="#" style="color:#333333;" onclick="return sortpatches(1);">Latest activity</a>{%if sortkey = 1%}<div style="float:right;"><i class="icon-arrow-down"></i></div>{%endif%}{%else%}Latest activity{%endif%}</th>
    <th>{%if p.is_open%}<a href="#" style="color:#333333;" onclick="return sortpatches(2);">Latest mail</a>{%if sortkey = 2%}<div style="float:right;"><i class="icon-arrow-down"></i></div>{%endif%}{%else%}Latest mail{%endif%}</th>
+{%if user.is_staff%}
+   <th>Select</th>
+{%endif%}
   </tr>
  </thead>
  <tbody>
@@ -60,7 +63,7 @@
 
 {%if grouping%}
 {%ifchanged p.topic%}
-  <tr><th colspan="6">{{p.topic}}</th></tr>
+  <tr><th colspan="{%if user.is_staff%}7{%else%}6{%endif%}">{{p.topic}}</th></tr>
 {%endifchanged%} 
 {%endif%}
   <tr>
@@ -70,14 +73,53 @@
    <td>{{p.reviewer_names|default:''}}</td>
    <td style="white-space: nowrap;">{{p.modified|date:"Y-m-d"}}<br/>{{p.modified|date:"H:i"}}</td>
    <td style="white-space: nowrap;">{{p.lastmail|date:"Y-m-d"}}<br/>{{p.lastmail|date:"H:i"}}</td>
+{%if user.is_staff%}
+   <td style="white-space: nowrap;"><input type="checkbox" class="sender_checkbox" id="send_authors_{{p.id}}">Author<br/><input type="checkbox" class="sender_checkbox" id="send_reviewers_{{p.id}}">Reviewer</td>
+{%endif%}
   </tr>
 {%endfor%}
  </tbody>
 </table>
 
+<div>
 {%if cf.isopen or user.is_staff %}
-<p>
 <a class="btn btn-default" href="new/">New patch</a>
-</p>
 {%endif%}
+{%if user.is_staff%}
+ <div class="btn-group dropup">
+  <button type="button" class="btn btn-default dropdown-toggle " data-toggle="dropdown" href="#">Send mail <span class="caret"></span></button>
+  <ul class="dropdown-menu">
+    <li><a href="javascript:send_selected()">Selected</a></li>
+    <li><a href="send_email/?reviewers={{openpatchids|join:","}}">All reviewers (open patches)</a></li>
+    <li><a href="send_email/?authors={{openpatchids|join:","}}">All authors (open patches)</a></li>
+    <li><a href="send_email/?authors={{openpatchids|join:","}}&reviewers={{openpatchids|join:","}}">All authors and reviewers (open patches)</a></li>
+  </ul>
+ </div>
+{%endif%}
+</div>
+{%endblock%}
+
+{%block morescript%}
+<script language="javascript">
+{%if user.is_staff%}
+   function send_selected() {
+      var authors = [];
+      var reviewers = [];
+      $('input.sender_checkbox').each(function(index, el) {
+         if (el.checked) {
+            if (el.id.indexOf('send_authors_') == 0) {
+               authors.push(el.id.substring(13));
+            } else {
+               reviewers.push(el.id.substring(15));
+            }
+         }
+      });
+      if (authors.length==0 && reviewers.length==0) {
+         alert('Nothing to send.');
+         return;
+      }
+      document.location.href = 'send_email/?authors=' + authors.join(',') + '&reviewers=' + reviewers.join(',');
+   }
+{%endif%}
+</script>
 {%endblock%}

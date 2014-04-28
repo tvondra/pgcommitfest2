@@ -27,4 +27,15 @@
  </ul>
 </div>
 
+{%if request.user.is_staff%}
+<div class="btn-group">
+ <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">Send private mail <span class="caret"></span></a>
+ <ul class="dropdown-menu">
+  <li><a href="send_email/?authors={{patch.id}}">Send mail to authors</a></li>
+  <li><a href="send_email/?reviewers={{patch.id}}">Send mail to reviewers</a></li>
+  <li><a href="send_email/?authors={{patch.id}}&reviewers={{patch.id}}">Send mail to authors and reviewers</a></li>
+ </ul>
+</div>
+{%endif%}
+
 </div>
