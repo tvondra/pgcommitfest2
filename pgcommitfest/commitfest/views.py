@@ -353,9 +353,18 @@ def close(request, cfid, patchid, status):
 				if len(newcf) == 0:
 					raise Exception("No open and no future commitfest exists!")
 				elif len(newcf) != 1:
-					raise Exception("No open and multiple future commitfests exists!")
+					raise Exception("No open and multiple future commitfests exist!")
 			elif len(newcf) != 1:
 				raise Exception("Multiple open commitfests exists!")
+			elif newcf[0] == poc.commitfest:
+				# The current open CF is the same one that we are already on.
+				# In this case, try to see if there is a future CF we can
+				# move it to.
+				newcf = CommitFest.objects.filter(status=CommitFest.STATUS_FUTURE)
+				if len(newcf) == 0:
+					raise Exception("Cannot move patch to the same commitfest, and no future commitfests exist!")
+				elif len(newcf) != 1:
+					raise Exception("Cannot move patch to the same commitfest, and multiple future commitfests exist!")
 			# Create a mapping to the new commitfest that we are bouncing
 			# this patch to.
 			newpoc = PatchOnCommitFest(patch=poc.patch, commitfest=newcf[0], enterdate=datetime.now())
