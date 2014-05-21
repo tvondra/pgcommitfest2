@@ -168,4 +168,7 @@ ARCHIVES_HOST="archives.postgresql.org"    # Host: header to send
 HACKERS_EMAIL="pgsql-hackers-testing@localhost"
 
 # Load local settings overrides
-from local_settings import *
+try:
+       from local_settings import *
+except ImportError:
+       pass
