@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^(\d+)/(\d+)/(comment|review)/', 'commitfest.views.comment'),
     url(r'^(\d+)/send_email/$', 'commitfest.views.send_email'),
     url(r'^(\d+)/\d+/send_email/$', 'commitfest.views.send_email'),
+    url(r'^search/$', 'commitfest.views.global_search'),
     url(r'^ajax/(\w+)/$', 'commitfest.ajax.main'),
 
     url(r'^selectable/', include('selectable.urls')),

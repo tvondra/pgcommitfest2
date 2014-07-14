@@ -106,6 +106,20 @@ def commitfest(request, cfid):
 		'openpatchids': [p.id for p in patches if p.is_open],
 		}, context_instance=RequestContext(request))
 
+def global_search(request):
+	if not request.GET.has_key('searchterm'):
+		print request.GET.keys()
+		return HttpResponseRedirect('/')
+	searchterm = request.GET['searchterm']
+
+	patches = Patch.objects.select_related().filter(name__icontains=searchterm).order_by('created',)
+
+	print patches
+	return render_to_response('patchsearch.html', {
+		'patches': patches,
+		'title': 'Patch search results',
+		}, context_instance=RequestContext(request))
+
 def patch(request, cfid, patchid):
 	cf = get_object_or_404(CommitFest, pk=cfid)
 	patch = get_object_or_404(Patch.objects.select_related(), pk=patchid, commitfests=cf)

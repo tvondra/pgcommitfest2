@@ -168,6 +168,7 @@ class PatchOnCommitFest(models.Model):
 
 	class Meta:
 		unique_together = (('patch', 'commitfest',),)
+		ordering = ('-commitfest__startdate', )
 
 class PatchHistory(models.Model):
 	patch = models.ForeignKey(Patch, blank=False, null=False)
