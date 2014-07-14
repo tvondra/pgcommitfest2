@@ -135,7 +135,7 @@ def patch(request, cfid, patchid):
 		'is_committer': is_committer,
 		'is_this_committer': is_this_committer,
 		'is_reviewer': is_reviewer,
-		'title': 'View patch',
+		'title': patch.name,
 		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},],
 		}, context_instance=RequestContext(request))
 
