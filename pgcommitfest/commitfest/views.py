@@ -114,7 +114,6 @@ def global_search(request):
 
 	patches = Patch.objects.select_related().filter(name__icontains=searchterm).order_by('created',)
 
-	print patches
 	return render_to_response('patchsearch.html', {
 		'patches': patches,
 		'title': 'Patch search results',
