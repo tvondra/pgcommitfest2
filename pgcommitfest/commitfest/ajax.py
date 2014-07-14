@@ -85,17 +85,32 @@ def attachThread(request):
 		raise Exception("Something happened that cannot happen")
 
 def doAttachThread(cf, patch, msgid, user):
+	# Note! Must be called in an open transaction!
 	r = sorted(_archivesAPI('/message-id.json/%s' % msgid), key=lambda x: x['date'])
 	# We have the full thread metadata - using the first and last entry,
 	# construct a new mailthread in our own model.
 	# First, though, check if it's already there.
-	if MailThread.objects.filter(messageid=r[0]['msgid'], patch=patch).exists():
-		# It already existed. Pretend everything is fine.
+	threads = MailThread.objects.filter(messageid=r[0]['msgid'])
+	if len(threads):
+		thread = threads[0]
+		if thread.patches.filter(id=patch.id).exists():
+			# We have everything, so claim we're done.
+			return True
+
+		# We did not exist, so we'd better add ourselves.
+		# While at it, we update the thread entry with the latest data from the
+		# archives.
+		thread.patches.add(patch)
+		thread.latestmessage=r[-1]['date']
+		thread.latestauthor=r[-1]['from']
+		thread.latestsubject=r[-1]['subj']
+		thread.altestmsgid=r[-1]['msgid']
+		thread.save()
 		return True
 
+	# No existing thread existed, so create it
 	# Now create a new mailthread entry
 	m = MailThread(messageid=r[0]['msgid'],
-				   patch=patch,
 				   subject=r[0]['subj'],
 				   firstmessage=r[0]['date'],
 				   firstauthor=r[0]['from'],
@@ -104,6 +119,8 @@ def doAttachThread(cf, patch, msgid, user):
 				   latestsubject=r[-1]['subj'],
 				   latestmsgid=r[-1]['msgid'],
 				   )
+	m.save()
+	m.patches.add(patch)
 	m.save()
 	parse_and_add_attachments(r, m)
 	PatchHistory(patch=patch, by=user, what='Attached mail thread %s' % r[0]['msgid']).save()
@@ -117,9 +134,9 @@ def doAttachThread(cf, patch, msgid, user):
 def detachThread(request):
 	cf = get_object_or_404(CommitFest, pk=int(request.POST['cf']))
 	patch = get_object_or_404(Patch, pk=int(request.POST['p']), commitfests=cf)
-	thread = get_object_or_404(MailThread, patch=patch, messageid=request.POST['msg'])
+	thread = get_object_or_404(MailThread, messageid=request.POST['msg'])
 
-	thread.delete()
+	patch.mailthread_set.remove(thread)
 	PatchHistory(patch=patch, by=request.user, what='Detached mail thread %s' % request.POST['msg']).save()
 	patch.update_lastmail()
 	patch.set_modified()

@@ -74,7 +74,7 @@ class Patch(models.Model, DiffableModel):
 	# If there is a git repo about this patch
 	gitlink = models.URLField(blank=True, null=True, default='')
 
-	# Mailthreads are OneToMany in the other direction
+	# Mailthreads are ManyToMany in the other direction
 	#mailthreads_set = ...
 
 	authors = models.ManyToManyField(User, related_name='patch_author', blank=True)
@@ -185,15 +185,15 @@ class PatchHistory(models.Model):
 class MailThread(models.Model):
 	# This class tracks mail threads from the main postgresql.org
 	# mailinglist archives. For each thread, we store *one* messageid.
-	# Using this messageid we can always query the arvhives for more
+	# Using this messageid we can always query the archives for more
 	# detailed information, which is done dynamically as the page
 	# is loaded.
 	# For threads in an active or future commitfest, we also poll
 	# the archives to fetch "updated entries" at (ir)regular intervals
 	# so we can keep track of when there was last a change on the
 	# thread in question.
-	messageid = models.CharField(max_length=1000, null=False, blank=False)
-	patch = models.ForeignKey(Patch, blank=False, null=False)
+	messageid = models.CharField(max_length=1000, null=False, blank=False, unique=True)
+	patches = models.ManyToManyField(Patch, blank=False, null=False)
 	subject = models.CharField(max_length=500, null=False, blank=False)
 	firstmessage = models.DateTimeField(null=False, blank=False)
 	firstauthor = models.CharField(max_length=500, null=False, blank=False)
@@ -207,7 +207,6 @@ class MailThread(models.Model):
 
 	class Meta:
 		ordering = ('firstmessage', )
-		unique_together = (('messageid', 'patch',), )
 
 class MailThreadAttachment(models.Model):
 	mailthread = models.ForeignKey(MailThread, null=False, blank=False)
