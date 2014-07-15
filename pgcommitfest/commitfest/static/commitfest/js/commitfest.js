@@ -4,14 +4,6 @@ function verify_reject() {
 function verify_returned() {
    return confirm('Are you sure you want to close this patch as Returned with Feedback?\n\nThis means the patch will be marked as closed in this commitfest, but will automatically be moved to the next one. If no further work is expected on this patch, it should be closed with "Rejected" istead.\n\nSo - are you sure?');
 }
-function verify_committed(is_committer) {
-   if (is_committer) 
-      return confirm('Are you sure you want to close this patch as Committed?');
-   else {
-      alert('Currently, only the committer who actually made the commit can do this. We should make a little prompt for the committer field otherwise..');
-      return false;
-   }
-}
 
 function findLatestThreads() {
    $('#attachThreadListWrap').addClass('loading');
@@ -109,6 +101,22 @@ function doAttachThread(cfid, patchid, msgid) {
       return false;
    });
 }
+
+function flagCommitted(committer) {
+   $('#commitModal').modal();
+   $('#committerSelect').val(committer);
+   $('#doCommitButton').unbind('click');
+   $('#doCommitButton').click(function() {
+       var c = $('#committerSelect').val();
+       if (!c) {
+	   alert('You need to select a committer before you can mark a patch as committed!');
+	   return;
+       }
+       document.location.href='close/committed/?c=' + c;
+   });
+   return false;
+}
+
 
 function sortpatches(sortby) {
    $('#id_sortkey').val(sortby);

@@ -123,11 +123,12 @@ def patch(request, cfid, patchid):
 	cf = get_object_or_404(CommitFest, pk=cfid)
 	patch = get_object_or_404(Patch.objects.select_related(), pk=patchid, commitfests=cf)
 	patch_commitfests = PatchOnCommitFest.objects.select_related('commitfest').filter(patch=patch).order_by('-commitfest__startdate')
+	committers = Committer.objects.filter(active=True).order_by('user__last_name', 'user__first_name')
 
 	#XXX: this creates a session, so find a smarter way. Probably handle
 	#it in the callback and just ask the user then?
 	if request.user.is_authenticated():
-		committer = list(Committer.objects.filter(user=request.user, active=True))
+		committer = [c for c in committers if c.user==request.user]
 		if len(committer) > 0:
 			is_committer=  True
 			is_this_committer = committer[0] == patch.committer
@@ -135,7 +136,6 @@ def patch(request, cfid, patchid):
 			is_committer = is_this_committer = False
 
 		is_reviewer = request.user in patch.reviewers.all()
-#		is_reviewer = len([x for x in patch.reviewers.all() if x==request.user]) > 0
 	else:
 		is_committer = False
 		is_this_committer = False
@@ -148,6 +148,7 @@ def patch(request, cfid, patchid):
 		'is_committer': is_committer,
 		'is_this_committer': is_this_committer,
 		'is_reviewer': is_reviewer,
+		'committers': committers,
 		'title': patch.name,
 		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},],
 		}, context_instance=RequestContext(request))
@@ -383,10 +384,12 @@ def close(request, cfid, patchid, status):
 			newpoc = PatchOnCommitFest(patch=poc.patch, commitfest=newcf[0], enterdate=datetime.now())
 			newpoc.save()
 		elif status == 'committed':
+			committer = get_object_or_404(Committer, user__username=request.GET['c'])
+			if committer != poc.patch.committer:
+				# Committer changed!
+				poc.patch.committer = committer
+				PatchHistory(patch=poc.patch, by=request.user, what='Changed committer to %s' % committer).save()
 			poc.status = PatchOnCommitFest.STATUS_COMMITTED
-			#XXX: need to prompt for a committer here!
-			raise Exception("Need to prompt for committed if the user who just committed isn't one!")
-			poc.patch.committer = Committer.objects.get(user=request.user)
 		else:
 			raise Exception("Can't happen")
 

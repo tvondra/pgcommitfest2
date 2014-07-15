@@ -111,6 +111,34 @@
 
 {%include "patch_commands.inc"%}
 
+{%comment%}commit dialog{%endcomment%}
+<div class="modal fade" id="commitModal" role="dialog">
+ <div class="modal-dialog modal-lg">
+   <div class="modal-content">
+     <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+       <h3>Flag as committed</h3>
+     </div>
+     <div class="modal-body">
+       <form class="form" style="margin-bottom: 5px;">
+	 <div class="form-group">
+	   <label for="committerlist">Committer</label>
+	   <select id="committerSelect" class="form-control">
+	     <option value="" style="display:none;"></option>
+	     {%for c in committers%}
+	     <option value="{{c.user.username}}">{{c.user.first_name}} {{c.user.last_name}}</option>
+	     {%endfor%}
+	   </select>
+	 </div>
+     </div>
+     <div class="modal-footer">
+       <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+       <a href="#" class="btn btn-default btn-primary" id="doCommitButton">Flag as committed</a>
+     </div>
+   </div>
+ </div>
+</div>
+
 {%include "thread_attach.inc"%}
 {%endblock%}
 
