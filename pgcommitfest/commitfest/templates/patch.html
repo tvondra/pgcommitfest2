@@ -27,6 +27,10 @@
       <td>{{patch.modified}} ({{patch.modified|timesince}} ago)</td>
     </tr>
     <tr>
+      <th style="white-space: nowrap;">Latest email</th>
+      <td>{{patch.lastmail}} ({{patch.lastmail|timesince}} ago)</td>
+    </tr>
+    <tr>
       <th>Status</th>
       <td>{%for c in patch_commitfests %}
 	<div style="margin-bottom: 3px;">{{c.commitfest}}: <span class="label label-default">{{c.statusstring}}</span></div>
