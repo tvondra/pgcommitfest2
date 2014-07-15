@@ -500,4 +500,5 @@ def send_email(request, cfid):
 		'form': form,
 		'title': 'Send email',
 		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},],
+		'savebutton': 'Send email',
 	}, context_instance=RequestContext(request))
