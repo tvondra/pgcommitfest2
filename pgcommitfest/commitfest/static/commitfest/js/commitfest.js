@@ -10,6 +10,7 @@ function findLatestThreads() {
    $('#attachThreadSearchButton').addClass('disabled');
    $.get('/ajax/getThreads/', {
       's': $('#attachThreadSearchField').val(),
+      'a': $('#attachThreadAttachOnly').val(),
    }).success(function(data) {
          sel = $('#attachThreadList');
          sel.find('option').remove();

@@ -20,6 +20,7 @@
  </div>
  <div class="modal-body">
    <form class="form-inline" style="margin-bottom: 5px;">
+     <input type="hidden" id="attachThreadAttachOnly" value="0">
      <div class="input-append">
        <input id="attachThreadSearchField" type="text" class="span2 search-query">
        <button id="attachThreadSearchButton" onclick="return findLatestThreads()" class="btn btn-default disabled">Search</button>

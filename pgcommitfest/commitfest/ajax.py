@@ -47,9 +47,10 @@ def _archivesAPI(suburl, params=None):
 
 def getThreads(request):
 	search = request.GET.has_key('s') and request.GET['s'] or None
+	attachonly = request.GET.has_key('a') and 1 or 0
 
 	# Make a JSON api call to the archives server
-	params = {'n': 100, 'a': 1}
+	params = {'n': 100, 'a': attachonly}
 	if search:
 		params['s'] = search
 
