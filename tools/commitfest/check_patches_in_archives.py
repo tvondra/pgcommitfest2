@@ -19,6 +19,8 @@ sys.path.append(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), '../
 import settings
 setup_environ(settings)
 
+from django.db import connection
+
 from commitfest.models import MailThreadAttachment
 
 if __name__ == "__main__":
@@ -58,3 +60,5 @@ if __name__ == "__main__":
 		else:
 			a.ispatch = False
 		a.save()
+
+	connection.close()
