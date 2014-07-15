@@ -106,23 +106,23 @@ def doAttachThread(cf, patch, msgid, user):
 		thread.latestsubject=r[-1]['subj']
 		thread.latestmsgid=r[-1]['msgid']
 		thread.save()
-		return True
+	else:
+		# No existing thread existed, so create it
+		# Now create a new mailthread entry
+		m = MailThread(messageid=r[0]['msgid'],
+					   subject=r[0]['subj'],
+					   firstmessage=r[0]['date'],
+					   firstauthor=r[0]['from'],
+					   latestmessage=r[-1]['date'],
+					   latestauthor=r[-1]['from'],
+					   latestsubject=r[-1]['subj'],
+					   latestmsgid=r[-1]['msgid'],
+					   )
+		m.save()
+		m.patches.add(patch)
+		m.save()
+		parse_and_add_attachments(r, m)
 
-	# No existing thread existed, so create it
-	# Now create a new mailthread entry
-	m = MailThread(messageid=r[0]['msgid'],
-				   subject=r[0]['subj'],
-				   firstmessage=r[0]['date'],
-				   firstauthor=r[0]['from'],
-				   latestmessage=r[-1]['date'],
-				   latestauthor=r[-1]['from'],
-				   latestsubject=r[-1]['subj'],
-				   latestmsgid=r[-1]['msgid'],
-				   )
-	m.save()
-	m.patches.add(patch)
-	m.save()
-	parse_and_add_attachments(r, m)
 	PatchHistory(patch=patch, by=user, what='Attached mail thread %s' % r[0]['msgid']).save()
 	patch.update_lastmail()
 	patch.set_modified()
