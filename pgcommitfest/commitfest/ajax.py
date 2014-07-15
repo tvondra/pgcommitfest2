@@ -104,7 +104,7 @@ def doAttachThread(cf, patch, msgid, user):
 		thread.latestmessage=r[-1]['date']
 		thread.latestauthor=r[-1]['from']
 		thread.latestsubject=r[-1]['subj']
-		thread.altestmsgid=r[-1]['msgid']
+		thread.latestmsgid=r[-1]['msgid']
 		thread.save()
 		return True
 
@@ -163,4 +163,3 @@ def main(request, command):
 		return resp
 	except Http503, e:
 		return HttpResponseServiceUnavailable(e, mimetype='text/plain')
-
