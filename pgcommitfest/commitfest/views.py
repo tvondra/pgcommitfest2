@@ -279,6 +279,7 @@ def comment(request, cfid, patchid, what):
 			msg['From'] = "%s %s <%s>" % (request.user.first_name, request.user.last_name, request.user.email)
 			msg['Date'] = formatdate(localtime=True)
 			msg['User-Agent'] = 'pgcommitfest'
+			msg['X-cfsender'] = request.user.username
 			msg['In-Reply-To'] = '<%s>' % form.respid
 			# We just add the "top" messageid and the one we're responding to.
 			# This along with in-reply-to should indicate clearly enough where
@@ -464,7 +465,7 @@ def send_email(request, cfid):
 			recipients = User.objects.filter(q).distinct()
 
 			for r in recipients:
-				send_simple_mail(request.user.email, r.email, form.cleaned_data['subject'], form.cleaned_data['body'])
+				send_simple_mail(request.user.email, r.email, form.cleaned_data['subject'], form.cleaned_data['body'], request.user.username)
 				messages.add_message(request, messages.INFO, "Sent email to %s" % r.email)
 			return HttpResponseRedirect('..')
 	else:

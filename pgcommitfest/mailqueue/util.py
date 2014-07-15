@@ -6,7 +6,7 @@ from email import encoders
 
 from models import QueuedMail
 
-def send_simple_mail(sender, receiver, subject, msgtxt, attachments=None):
+def send_simple_mail(sender, receiver, subject, msgtxt, sending_username, attachments=None):
 	# attachment format, each is a tuple of (name, mimetype,contents)
 	# content should already be base64 encoded
 	msg = MIMEMultipart()
@@ -14,6 +14,8 @@ def send_simple_mail(sender, receiver, subject, msgtxt, attachments=None):
 	msg['To'] = receiver
 	msg['From'] = sender
 	msg['Date'] = formatdate(localtime=True)
+	msg['User-Agent'] = 'pgcommitfest'
+	msg['X-cfsender'] = sending_username
 
 	msg.attach(MIMEText(msgtxt, _charset='utf-8'))
 
