@@ -2,7 +2,7 @@
 {%load commitfest %}
 {%block contents%}
 
-<button type="button" class="btn btn-default{%if has_filter%} active{%endif%}" id="filterButton" onClick="toggleButtonCollapse('filterButton', 'collapseFilters')">Search/filter</button>
+<button type="button" class="btn btn-default{%if has_filter%} active{%endif%}" id="filterButton" onClick="togglePatchFilterButton('filterButton', 'collapseFilters')">Search/filter</button>
 <div class="btn-group">
   <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">Shortcuts <span class="caret"></span></a>
   <ul class="dropdown-menu">

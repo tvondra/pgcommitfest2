@@ -129,3 +129,16 @@ function toggleButtonCollapse(buttonId, collapseId) {
    $('#' + buttonId).button('toggle');
    $('#' + collapseId).toggleClass('in')
 }
+
+function togglePatchFilterButton(buttonId, collapseId) {
+   /* Figure out if we are collapsing it */
+   if ($('#' + collapseId).hasClass('in')) {
+       /* Go back to ourselves without a querystring to reset the form, unless it's already empty */
+       if (document.location.href.indexOf('?') > -1) {
+	   document.location.href = '.';
+	   return;
+       }
+   }
+
+   toggleButtonCollapse(buttonId, collapseId);
+}
