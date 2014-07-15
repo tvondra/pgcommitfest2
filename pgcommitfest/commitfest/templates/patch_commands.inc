@@ -11,19 +11,16 @@
 
 <div class="btn-group">
  <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">Status <span class="caret"></span></a>
- <ul class="dropdown-menu">
-  <li><a href="status/review/">Needs review</a></li>
-  <li><a href="status/author/">Waiting on Author</a></li>
-  <li><a href="status/committer/">Ready for Committer</a></li>
- </ul>
-</div>
-
-<div class="btn-group">
- <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">Close <span class="caret"></span></a>
- <ul class="dropdown-menu">
-  <li><a href="close/reject/" onclick="return verify_reject()">Rejected</a></li>
-  <li><a href="close/feedback/" onclick="return verify_returned()">Returned with feedback</a></li>
-  <li><a href="close/committed/" onclick="return verify_committed({{is_committer|yesno:"true,false"}}))">Committed</a></li>
+ <ul class="dropdown-menu" role="menu">
+  <li role="presentation" class="dropdown-header">Open statuses</li>
+  <li role="presentation"><a href="status/review/">Needs review</a></li>
+  <li role="presentation"><a href="status/author/">Waiting on Author</a></li>
+  <li role="presentation"><a href="status/committer/">Ready for Committer</a></li>
+  <li role="presentation" class="divider"></li>
+  <li role="presentation" class="dropdown-header">Closed statuses</li>
+  <li role="presentation"><a href="close/reject/" onclick="return verify_reject()">Rejected</a></li>
+  <li role="presentation"><a href="close/feedback/" onclick="return verify_returned()">Returned with feedback</a></li>
+  <li role="presentation"><a href="close/committed/" onclick="return verify_committed({{is_committer|yesno:"true,false"}}))">Committed</a></li>
  </ul>
 </div>
 
