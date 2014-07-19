@@ -3,12 +3,15 @@ from django.http import HttpResponse, Http404
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db import transaction
 
 import httplib
 import socket
 import urllib
 import simplejson
+
+from auth import user_search
 
 class HttpResponseServiceUnavailable(HttpResponse): 
 	status_code = 503
@@ -148,11 +151,38 @@ def detachThread(request):
 
 	return 'OK'
 
+def searchUsers(request):
+	if request.GET.has_key('s') and request.GET['s']:
+		return user_search(request.GET['s'])
+	else:
+		return []
+
+def importUser(request):
+	if request.GET.has_key('u') and request.GET['u']:
+		u = user_search(userid=request.GET['u'])
+		if len (u) != 1:
+			return "Internal error, duplicate user found"
+
+		u = u[0]
+
+		if User.objects.filter(username=u['u']).exists():
+			return "User already exists"
+		User(username=u['u'],
+			 first_name=u['f'],
+			 last_name=u['l'],
+			 email=u['e'],
+			 password='setbypluginnotsha1',
+			 ).save()
+		return 'OK'
+	else:
+		raise Http404()
 
 _ajax_map={
 	'getThreads': getThreads,
 	'attachThread': attachThread,
 	'detachThread': detachThread,
+	'searchUsers': searchUsers,
+	'importUser': importUser,
 }
 
 # Main entrypoint for /ajax/<command>/

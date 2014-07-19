@@ -79,9 +79,35 @@ div.form-group div.controls input.threadpick-input {
 {%if threadbrowse %}
 {%include "thread_attach.inc" %}
 {%endif%}
+
+<div class="modal fade" id="searchUserModal" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	<h3>Search user</h3>
+      </div>
+      <div class="modal-body">
+	<form class="form-inline" style="margin-bottom: 5px;">
+	  <div class="input-append">
+	    <input id="searchUserSearchField" type="text" class="span2 search-query" autocomplete="off">
+	    <button id="searchUserSearchButton" onclick="return findUsers()" class="btn btn-default">Search</button>
+	  </div>
+	</form>
+	<div>Search for users above and then pick one in the list below:</div>
+	<div id="searchUserListWrap">
+	  <select id="searchUserList" size="6" style="width:100%;" onchange="searchUserListChanged()"></select>
+	</div>
+      </div>
+      <div class="modal-footer">
+	<a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+	<a href="#" id="doSelectUserButton" class="btn btn-default btn-primary disabled">Add user to system</a>
+      </div>
+    </div>
+  </div>
+</div>
 {%endblock%}
 
-{%if threadbrowse %}
 {%block morescript%}
 <script>
 /* Set up djselectable to use bootstrap buttons */
@@ -100,6 +126,21 @@ $.ui.djselectable.prototype._removeButtonTemplate = function (item) {
     return $("<a>").append(icon).addClass("btn btn-default btn-xs selectable-deck-remove");
 };
 
+/* Set up userid selectables to be searchable */
+$('input[data-selectable-url="/selectable/commitfest-userlookup/"]').each(function() {
+   $(this).after(
+	  $('<a href="#" class="btn btn-default btn-sm">Import user not listed</a>').click(function () {
+	  search_and_store_user();
+
+ 	  return false;
+	})
+   );
+});
+
+$('#searchUserModal').on('shown.bs.modal', function() {
+	  $('#searchUserSearchField').focus();
+});
+
 /* Build our button callbacks */
 $(document).ready(function() {
    $('button.attachThreadButton').each(function (i,o) {
@@ -116,4 +157,3 @@ $(document).ready(function() {
 });
 </script>
 {%endblock%}
-{%endif%}

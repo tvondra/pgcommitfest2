@@ -143,3 +143,64 @@ function togglePatchFilterButton(buttonId, collapseId) {
 
    toggleButtonCollapse(buttonId, collapseId);
 }
+
+
+/*
+ * Upstream user search dialog
+ */
+function search_and_store_user() {
+    $('#doSelectUserButton').unbind('click');
+    $('#doSelectUserButton').click(function() {
+	if (!$('#searchUserList').val()) { return false; }
+
+	/* Create this user locally */
+	$.get('/ajax/importUser/', {
+	    'u': $('#searchUserList').val(),
+	}).success(function(data) {
+	    if (data == 'OK') {
+		alert('User imported!');
+		$('#searchUserModal').modal('hide');
+	    } else {
+		alert('Failed to import user: ' + data);
+	    }
+	}).fail(function(data, statustxt) {
+	    alert('Failed to import user: ' + statustxt);
+	});
+
+	return false;
+    });
+
+    $('#searchUserModal').modal();
+}
+
+function findUsers() {
+    if (!$('#searchUserSearchField').val()) {
+	alert('No search term specified');
+	return false;
+    }
+    $('#searchUserListWrap').addClass('loading');
+    $('#searchUserSearchButton').addClass('disabled');
+    $.get('/ajax/searchUsers/', {
+      's': $('#searchUserSearchField').val(),
+    }).success(function(data) {
+        sel = $('#searchUserList');
+        sel.find('option').remove();
+        $.each(data, function(i,u) {
+	    sel.append('<option value="' + u.u + '">' + u.u + ' (' + u.f + ' ' + u.l + ')</option>');
+        });
+    }).always(function() {
+	$('#searchUserListWrap').removeClass('loading');
+	$('#searchUserSearchButton').removeClass('disabled');
+	searchUserListChanged();
+    });
+   return false;
+}
+
+function searchUserListChanged() {
+   if ($('#searchUserList').val()) {
+       $('#doSelectUserButton').removeClass('disabled');
+   }
+   else {
+       $('#doSelectUserButton').addClass('disabled');
+   }
+}
