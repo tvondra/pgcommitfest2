@@ -77,7 +77,7 @@ class CommentForm(forms.Form):
 	responseto = forms.ChoiceField(choices=[], required=True, label='In response to')
 
 	# Specific checkbox fields for reviews
-	review_installcheck = reviewfield('make installcheck')
+	review_installcheck = reviewfield('make installcheck-world')
 	review_implements = reviewfield('Implements feature')
 	review_spec = reviewfield('Spec compliant')
 	review_doc = reviewfield('Documentation')
