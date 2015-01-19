@@ -45,6 +45,7 @@ if __name__ == "__main__":
 		resp = h.getresponse()
 		if resp.status != 200:
 			print "Failed to get %s: %s" % (url, resp.status)
+			continue
 
 		contents = resp.read()
 		resp.close()
