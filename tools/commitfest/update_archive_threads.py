@@ -22,7 +22,6 @@ from commitfest.ajax import _archivesAPI, parse_and_add_attachments
 
 if __name__ == "__main__":
 	for thread in MailThread.objects.filter(patches__commitfests__status__in=(1,2,3)).distinct():
-		print "Attempt to update thread %s" % thread.messageid
 		r = sorted(_archivesAPI('/message-id.json/%s' % thread.messageid), key=lambda x: x['date'])
 		if thread.latestmsgid != r[-1]['msgid']:
 			# There is now a newer mail in the thread!
