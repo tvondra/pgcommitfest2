@@ -18,7 +18,7 @@
    <td>{%for c in cfs %}
 	<div style="margin-bottom: 3px;">{{c.commitfest}}: <span class="label label-default">{{c.statusstring}}</span></div>
 	{%endfor%}</td>
-   <td>{{p.author_names|default:''}}</td>
+   <td>{{p.authors_string|default:''}}</td>
   </tr>
  {%endwith%}
 {%endfor%}
