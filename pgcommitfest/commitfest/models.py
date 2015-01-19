@@ -19,6 +19,9 @@ class Committer(models.Model):
 	def fullname(self):
 		return "%s %s (%s)" % (self.user.first_name, self.user.last_name, self.user.username)
 
+	class Meta:
+		ordering = ('user__last_name', 'user__first_name')
+
 class CommitFest(models.Model):
 	STATUS_FUTURE=1
 	STATUS_OPEN=2
