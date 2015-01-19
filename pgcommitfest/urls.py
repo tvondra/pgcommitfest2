@@ -8,6 +8,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^$', 'commitfest.views.home'),
     url(r'^(\d+)/$', 'commitfest.views.commitfest'),
+    url(r'^(open|inprogress)/$', 'commitfest.views.redir'),
     url(r'^(\d+)/(\d+)/$', 'commitfest.views.patch'),
     url(r'^(\d+)/(\d+)/edit/$', 'commitfest.views.patchform'),
     url(r'^(\d+)/new/$', 'commitfest.views.newpatch'),

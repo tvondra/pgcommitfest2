@@ -32,6 +32,16 @@ def home(request):
 		'title': 'Commitfests',
 		}, context_instance=RequestContext(request))
 
+def redir(request, what):
+	if what == 'open':
+		cf = get_object_or_404(CommitFest, status=CommitFest.STATUS_OPEN)
+	elif what == 'inprogress':
+		cf = get_object_or_404(CommitFest, status=CommitFest.STATUS_INPROGRESS)
+	else:
+		raise Http404()
+
+	return HttpResponseRedirect("/%s/" % cf.id)
+
 def commitfest(request, cfid):
 	# Find ourselves
 	cf = get_object_or_404(CommitFest, pk=cfid)
