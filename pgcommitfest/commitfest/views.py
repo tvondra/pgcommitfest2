@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.template import RequestContext
-from django.db import transaction
+from django.db import transaction, connection
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -19,6 +19,7 @@ from models import CommitFest, Patch, PatchOnCommitFest, PatchHistory, Committer
 from forms import PatchForm, NewPatchForm, CommentForm, CommitFestFilterForm
 from forms import BulkEmailForm
 from ajax import doAttachThread
+from feeds import ActivityFeed
 
 def home(request):
 	commitfests = list(CommitFest.objects.all())
@@ -30,6 +31,50 @@ def home(request):
 		'opencf': opencf,
 		'inprogresscf': inprogresscf,
 		'title': 'Commitfests',
+		'header_activity': 'Activity log',
+		'header_activity_link': '/activity/',
+		}, context_instance=RequestContext(request))
+
+
+def activity(request, cfid=None, rss=None):
+	# Number of notes to fetch
+	if rss:
+		num = 50
+	else:
+		num = 100
+
+	if cfid:
+		cf = get_object_or_404(CommitFest, pk=cfid)
+
+		# Yes, we do string concatenation of the were clause. Because
+		# we're evil.  And also because the number has been verified
+		# when looking up the cf itself, so nothing can be injected
+		# there.
+		extrafields = ''
+		where = 'WHERE poc.commitfest_id={0}'.format(cf.id)
+	else:
+		cf = None
+		extrafields = ',poc.commitfest_id AS cfid,cf.name AS cfname'
+		where = ' INNER JOIN commitfest_commitfest cf ON cf.id=poc.commitfest_id'
+
+	sql = "SELECT ph.date, auth_user.username AS by, ph.what, p.id AS patchid, p.name{0} FROM commitfest_patchhistory ph INNER JOIN commitfest_patch p ON ph.patch_id=p.id INNER JOIN auth_user on auth_user.id=ph.by_id INNER JOIN commitfest_patchoncommitfest poc ON poc.patch_id=p.id {1} ORDER BY ph.date DESC LIMIT {2}".format(extrafields,where, num)
+
+	curs = connection.cursor()
+	curs.execute(sql)
+	activity = [dict(zip([c[0] for c in curs.description],r)) for r in curs.fetchall()]
+
+	if rss:
+		# Return RSS feed with these objects
+		return ActivityFeed(activity, cf)(request)
+	else:
+		# Return regular webpage
+		return render_to_response('activity.html', {
+			'commitfest': cf,
+			'activity': activity,
+			'title': cf and 'Commitfest activity' or 'Global Commitfest activity',
+			'rss_alternate': cf and '/{0}/activity.rss/'.format(cf.id) or '/activity.rss/',
+			'rss_alternate_title': 'PostgreSQL Commitfest Activity Log',
+			'breadcrumbs': cf and [{'title': cf.title, 'href': '/%s/' % cf.pk},] or None,
 		}, context_instance=RequestContext(request))
 
 def redir(request, what):
@@ -114,6 +159,8 @@ def commitfest(request, cfid):
 		'grouping': sortkey==0,
 		'sortkey': sortkey,
 		'openpatchids': [p.id for p in patches if p.is_open],
+		'header_activity': 'Activity log',
+		'header_activity_link': 'activity/',
 		}, context_instance=RequestContext(request))
 
 def global_search(request):

@@ -7,8 +7,10 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'commitfest.views.home'),
+    url(r'^activity(?P<rss>\.rss)?/', 'commitfest.views.activity'),
     url(r'^(\d+)/$', 'commitfest.views.commitfest'),
     url(r'^(open|inprogress)/$', 'commitfest.views.redir'),
+    url(r'^(?P<cfid>\d+)/activity(?P<rss>\.rss)?/$', 'commitfest.views.activity'),
     url(r'^(\d+)/(\d+)/$', 'commitfest.views.patch'),
     url(r'^(\d+)/(\d+)/edit/$', 'commitfest.views.patchform'),
     url(r'^(\d+)/new/$', 'commitfest.views.newpatch'),
