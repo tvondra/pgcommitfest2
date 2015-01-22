@@ -37,6 +37,7 @@ def userprofile(request):
 								   tokensent=datetime.now())
 				m.save()
 				send_template_mail(settings.NOTIFICATION_FROM,
+								   request.user.username,
 								   m.email,
 								   'Your email address for commitfest.postgresql.org',
 								   'extra_email_mail.txt',

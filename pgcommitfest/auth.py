@@ -130,7 +130,7 @@ def auth_receive(request):
 a different username than %s.
 
 This is almost certainly caused by some legacy data in our database.
-Please send an email to webmaster@postgresql.eu, indicating the username
+Please send an email to webmaster@postgresql.org, indicating the username
 and email address from above, and we'll manually marge the two accounts
 for you.
 

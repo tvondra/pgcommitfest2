@@ -39,7 +39,7 @@ def send_mail(sender, receiver, fullmsg):
 	# Send an email, prepared as the full MIME encoded mail already
 	QueuedMail(sender=sender, receiver=receiver, fullmsg=fullmsg).save()
 
-def send_template_mail(sender, receiver, subject, templatename, templateattr={}, usergenerated=False):
+def send_template_mail(sender, senderaccountname, receiver, subject, templatename, templateattr={}, usergenerated=False):
 	send_simple_mail(sender, receiver, subject,
 					 get_template(templatename).render(Context(templateattr)),
-					 '__internal')
+					 senderaccountname)
