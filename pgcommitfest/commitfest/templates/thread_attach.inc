@@ -1,17 +1,4 @@
 {%comment%}Modal dialog for attach thread{%endcomment%}
-<style>
-#attachThreadListWrap.loading {
-    display: block;
-    background: url('/static/commitfest/spinner.gif') no-repeat center;
-    width: 124px;
-    height: 124px;
-    margin: 0 auto;
-}
-#attachThreadListWrap.loading * {
-    display: none;
-}
-</style>
-
 <div class="modal fade" id="attachModal" role="dialog">
  <div class="modal-dialog modal-lg"><div class="modal-content">
  <div class="modal-header">

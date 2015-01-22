@@ -2,45 +2,6 @@
 {%load commitfest%}
 
 {%block contents%}
-<style>
-.form-horizontal div.form-group {
-   margin-bottom: 10px;
-}
-div.form-group div.controls ul {
-   list-style-type: none;
-   margin: 0px;
-   padding: 0px;
-}
-div.form-group div.controls ul li {
-   display: inline;
-}
-div.form-group div.controls ul li label {
-   display: inline;
-   font-weight: normal;
-   vertical-align:middle;
-}
-div.form-group div.controls ul li label input {
-   display: inline;
-   vertical-align:middle;
-}
-div.form-group div.controls input[type='checkbox'] {
-   width: 10px;
-}
-
-div.controls ul.selectable-deck li.selectable-deck-item {
-   display: block;
-}
-
-div.controls ul.selectable-deck li.selectable-deck-item a.selectable-deck-remove {
-   float: none;
-   margin-left: 10px;
-}
-
-div.form-group div.controls input.threadpick-input {
-   width: 80%;
-   display: inline;
-}
-</style>
 <form class="form-horizontal {{extraformclass}}" method="POST" action=".">{%csrf_token%}
 {%if form.errors%}
  <div class="alert">Please correct the errors below, and re-submit the form.</div>

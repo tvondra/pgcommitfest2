@@ -1,0 +1,62 @@
+/*
+ * commitfest.postgresql.org specific styles
+ */
+
+/* For close button with float disabled */
+.close-nofloat {
+   float: none !important;
+}
+
+/* General form styling */
+.form-horizontal div.form-group {
+   margin-bottom: 10px;
+}
+div.form-group div.controls ul {
+   list-style-type: none;
+   margin: 0px;
+   padding: 0px;
+}
+div.form-group div.controls ul li {
+   display: inline;
+}
+div.form-group div.controls ul li label {
+   display: inline;
+   font-weight: normal;
+   vertical-align:middle;
+}
+div.form-group div.controls ul li label input {
+   display: inline;
+   vertical-align:middle;
+}
+div.form-group div.controls input[type='checkbox'] {
+   width: 10px;
+}
+
+div.controls ul.selectable-deck li.selectable-deck-item {
+   display: block;
+}
+
+div.controls ul.selectable-deck li.selectable-deck-item a.selectable-deck-remove {
+   float: none;
+   margin-left: 10px;
+}
+
+div.form-group div.controls input.threadpick-input {
+   width: 80%;
+   display: inline;
+}
+
+
+/*
+ * Attach thread dialog
+ */
+#attachThreadListWrap.loading {
+    display: block;
+    background: url('/static/commitfest/spinner.gif') no-repeat center;
+    width: 124px;
+    height: 124px;
+    margin: 0 auto;
+}
+#attachThreadListWrap.loading * {
+    display: none;
+}
