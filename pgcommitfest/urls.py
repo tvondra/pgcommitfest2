@@ -31,6 +31,11 @@ urlpatterns = patterns('',
     (r'^(?:account/)?logout/?$', 'auth.logout'),
     (r'^auth_receive/$', 'auth.auth_receive'),
 
+    # Account management
+    (r'^account/profile/$', 'userprofile.views.userprofile'),
+    (r'^account/profile/delmail/$', 'userprofile.views.deletemail'),
+    (r'^account/profile/confirm/([0-9a-f]+)/$', 'userprofile.views.confirmemail'),
+
     # Examples:
     # url(r'^$', 'pgcommitfest.views.home', name='home'),
     # url(r'^pgcommitfest/', include('pgcommitfest.foo.urls')),

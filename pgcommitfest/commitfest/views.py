@@ -14,6 +14,7 @@ from email.mime.text import MIMEText
 from email.utils import formatdate, make_msgid
 
 from mailqueue.util import send_mail, send_simple_mail
+from userprofile.util import UserWrapper
 
 from models import CommitFest, Patch, PatchOnCommitFest, PatchHistory, Committer
 from forms import PatchForm, NewPatchForm, CommentForm, CommitFestFilterForm
@@ -333,7 +334,7 @@ def comment(request, cfid, patchid, what):
 				msg['Subject'] = 'Re: %s' % form.thread.subject
 
 			msg['To'] = settings.HACKERS_EMAIL
-			msg['From'] = "%s %s <%s>" % (request.user.first_name, request.user.last_name, request.user.email)
+			msg['From'] = "%s %s <%s>" % (request.user.first_name, request.user.last_name, UserWrapper(request.user).email)
 			msg['Date'] = formatdate(localtime=True)
 			msg['User-Agent'] = 'pgcommitfest'
 			msg['X-cfsender'] = request.user.username
@@ -344,7 +345,7 @@ def comment(request, cfid, patchid, what):
 			msg['References'] = '<%s> <%s>' % (form.thread.messageid, form.respid)
 			msg['Message-ID'] = make_msgid('pgcf')
 
-			send_mail(request.user.email, settings.HACKERS_EMAIL, msg)
+			send_mail(UserWrapper(request.user).email, settings.HACKERS_EMAIL, msg)
 
 			PatchHistory(patch=patch, by=request.user, what='Posted %s with messageid %s' % (what, msg['Message-ID'])).save()
 
@@ -366,7 +367,7 @@ def comment(request, cfid, patchid, what):
 		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},
 						{'title': 'View patch', 'href': '/%s/%s/' % (cf.pk, patch.pk)}],
 		'title': "Add %s" % what,
-		'note': '<b>Note!</b> This form will generate an email to the public mailinglist <i>pgsql-hackers</i>, with sender set to %s!' % (request.user.email),
+		'note': '<b>Note!</b> This form will generate an email to the public mailinglist <i>pgsql-hackers</i>, with sender set to %s!' % (UserWrapper(request.user).email),
 		'savebutton': 'Send %s' % what,
 	}, context_instance=RequestContext(request))
 
@@ -522,7 +523,7 @@ def send_email(request, cfid):
 			recipients = User.objects.filter(q).distinct()
 
 			for r in recipients:
-				send_simple_mail(request.user.email, r.email, form.cleaned_data['subject'], form.cleaned_data['body'], request.user.username)
+				send_simple_mail(UserWrapper(request.user).email, r.email, form.cleaned_data['subject'], form.cleaned_data['body'], request.user.username)
 				messages.add_message(request, messages.INFO, "Sent email to %s" % r.email)
 			return HttpResponseRedirect('..')
 	else:
@@ -543,7 +544,7 @@ def send_email(request, cfid):
 		messages.add_message(request, messages.WARNING, "No recipients specified, cannot send email")
 		return HttpResponseRedirect('..')
 
-	messages.add_message(request, messages.INFO, "Email will be sent from: %s" % request.user.email)
+	messages.add_message(request, messages.INFO, "Email will be sent from: %s" % UserWrapper(request.user).email)
 	def _user_and_mail(u):
 		return "%s %s (%s)" % (u.first_name, u.last_name, u.email)
 

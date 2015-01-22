@@ -1,3 +1,6 @@
+from django.template import Context
+from django.template.loader import get_template
+
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.nonmultipart import MIMENonMultipart
@@ -35,3 +38,8 @@ def send_simple_mail(sender, receiver, subject, msgtxt, sending_username, attach
 def send_mail(sender, receiver, fullmsg):
 	# Send an email, prepared as the full MIME encoded mail already
 	QueuedMail(sender=sender, receiver=receiver, fullmsg=fullmsg).save()
+
+def send_template_mail(sender, receiver, subject, templatename, templateattr={}, usergenerated=False):
+	send_simple_mail(sender, receiver, subject,
+					 get_template(templatename).render(Context(templateattr)),
+					 '__internal')

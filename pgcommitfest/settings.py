@@ -128,6 +128,7 @@ INSTALLED_APPS = (
 	'selectable',
 	'commitfest',
 	'mailqueue',
+	'userprofile',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -165,6 +166,9 @@ ARCHIVES_HOST="archives.postgresql.org"    # Host: header to send
 
 # Email address to pgsql-hackers. Set to something local to test maybe?
 HACKERS_EMAIL="pgsql-hackers-testing@localhost"
+
+# Email address for outgoing system messages
+NOTIFICATION_FROM="webmaster@postgresql.org"
 
 # Load local settings overrides
 try:
