@@ -86,10 +86,7 @@ def attachThread(request):
 	patch = get_object_or_404(Patch, pk=int(request.POST['p']), commitfests=cf)
 	msgid = request.POST['msg']
 
-	if doAttachThread(cf, patch, msgid, request.user):
-		return 'OK'
-	else:
-		raise Exception("Something happened that cannot happen")
+	return doAttachThread(cf, patch, msgid, request.user)
 
 def doAttachThread(cf, patch, msgid, user):
 	# Note! Must be called in an open transaction!
@@ -101,8 +98,7 @@ def doAttachThread(cf, patch, msgid, user):
 	if len(threads):
 		thread = threads[0]
 		if thread.patches.filter(id=patch.id).exists():
-			# We have everything, so claim we're done.
-			return True
+			return 'This thread is already added to this email'
 
 		# We did not exist, so we'd better add ourselves.
 		# While at it, we update the thread entry with the latest data from the
@@ -135,7 +131,7 @@ def doAttachThread(cf, patch, msgid, user):
 	patch.set_modified()
 	patch.save()
 
-	return True
+	return 'OK'
 
 @transaction.commit_on_success
 def detachThread(request):

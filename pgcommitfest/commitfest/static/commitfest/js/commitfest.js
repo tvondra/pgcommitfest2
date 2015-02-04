@@ -98,6 +98,9 @@ function doAttachThread(cfid, patchid, msgid, reloadonsuccess) {
       'p': patchid,
       'msg': msgid,
    }).success(function(data) {
+      if (data != 'OK') {
+	  alert(data);
+      }
       if (reloadonsuccess)
 	  location.reload();
       return true;
