@@ -26,7 +26,8 @@ if __name__ == "__main__":
 
 	# Logging always done to stdout, but we can turn on/off how much
 	logging.basicConfig(format='%(asctime)s %(levelname)s: %(msg)s',
-						level=debug and logging.DEBUG or logging.INFO)
+						level=debug and logging.DEBUG or logging.INFO,
+						stream=sys.stdout)
 
 	logging.debug("Checking for updated mail threads in the archives")
 	for thread in MailThread.objects.filter(patches__commitfests__status__in=(1,2,3)).distinct():

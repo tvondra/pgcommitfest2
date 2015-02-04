@@ -29,7 +29,8 @@ if __name__ == "__main__":
 
 	# Logging always done to stdout, but we can turn on/off how much
 	logging.basicConfig(format='%(asctime)s %(levelname)s: %(msg)s',
-						level=debug and logging.DEBUG or logging.INFO)
+						level=debug and logging.DEBUG or logging.INFO,
+						stream=sys.stdout)
 
 	socket.setdefaulttimeout(settings.ARCHIVES_TIMEOUT)
 	mag = magic.open(magic.MIME)
