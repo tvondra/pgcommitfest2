@@ -8,6 +8,7 @@
 
 import os
 import sys
+import logging
 
 # Set up for accessing django
 from django.core.management import setup_environ
@@ -21,11 +22,19 @@ from commitfest.models import MailThread
 from commitfest.ajax import _archivesAPI, parse_and_add_attachments
 
 if __name__ == "__main__":
+	debug = "--debug" in sys.argv
+
+	# Logging always done to stdout, but we can turn on/off how much
+	logging.basicConfig(format='%(asctime)s %(levelname)s: %(msg)s',
+						level=debug and logging.DEBUG or logging.INFO)
+
+	logging.debug("Checking for updated mail threads in the archives")
 	for thread in MailThread.objects.filter(patches__commitfests__status__in=(1,2,3)).distinct():
+		logging.debug("Checking %s in the archives" % thread.messageid)
 		r = sorted(_archivesAPI('/message-id.json/%s' % thread.messageid), key=lambda x: x['date'])
 		if thread.latestmsgid != r[-1]['msgid']:
 			# There is now a newer mail in the thread!
-			print "Thread %s updated" % thread.messageid
+			logging.info("Thread %s updated" % thread.messageid)
 			thread.latestmsgid = r[-1]['msgid']
 			thread.latestmessage = r[-1]['date']
 			thread.latestauthor = r[-1]['from']
@@ -35,7 +44,9 @@ if __name__ == "__main__":
 			# Potentially update the last mail date - if there wasn't already a mail on each patch
 			# from a *different* thread that had an earlier date.
 			for p in thread.patches.filter(lastmail__lt=thread.latestmessage):
+				logging.debug("Last mail time updated for %s" % thread.messageid)
 				p.lastmail = thread.latestmessage
 				p.save()
 
 	connection.close()
+	logging.debug("Done.")

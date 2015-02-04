@@ -12,6 +12,7 @@ import sys
 import socket
 import httplib
 import magic
+import logging
 
 # Set up for accessing django
 from django.core.management import setup_environ
@@ -24,10 +25,18 @@ from django.db import connection
 from commitfest.models import MailThreadAttachment
 
 if __name__ == "__main__":
+	debug = "--debug" in sys.argv
+
+	# Logging always done to stdout, but we can turn on/off how much
+	logging.basicConfig(format='%(asctime)s %(levelname)s: %(msg)s',
+						level=debug and logging.DEBUG or logging.INFO)
+
 	socket.setdefaulttimeout(settings.ARCHIVES_TIMEOUT)
 	mag = magic.open(magic.MIME)
 	mag.load()
-	
+
+	logging.debug("Updating attachment metadata from archives")
+
 	# Try to fetch/scan all attachments that haven't already been scanned.
 	# If they have already been scanned, we don't bother.
 	# We will hit the archives without delay when doing this, but that
@@ -35,6 +44,8 @@ if __name__ == "__main__":
 	# downloading a lot...
 	for a in MailThreadAttachment.objects.filter(ispatch=None):
 		url = "/message-id/attachment/%s/attach" % a.attachmentid
+		logging.debug("Checking attachment %s" % a.attachmentid)
+
 		h = httplib.HTTPConnection(settings.ARCHIVES_SERVER,
 								   settings.ARCHIVES_PORT,
 								   True,
@@ -44,7 +55,7 @@ if __name__ == "__main__":
 			})
 		resp = h.getresponse()
 		if resp.status != 200:
-			print "Failed to get %s: %s" % (url, resp.status)
+			logging.error("Failed to get %s: %s" % (url, resp.status))
 			continue
 
 		contents = resp.read()
@@ -53,6 +64,7 @@ if __name__ == "__main__":
 
 		# Attempt to identify the file using magic information
 		mtype = mag.buffer(contents)
+		logging.debug("Detected MIME type is %s" % mtype)
 
 		# We don't support gzipped or tar:ed patches or anything like
 		# that at this point - just plain patches.
@@ -60,6 +72,8 @@ if __name__ == "__main__":
 			a.ispatch = True
 		else:
 			a.ispatch = False
+		logging.info("Attachment %s is patch: %s" % (a.id, a.ispatch))
 		a.save()
 
 	connection.close()
+	logging.debug("Done.")
