@@ -345,7 +345,7 @@ def comment(request, cfid, patchid, what):
 			msg['References'] = '<%s> <%s>' % (form.thread.messageid, form.respid)
 			msg['Message-ID'] = make_msgid('pgcf')
 
-			send_mail(UserWrapper(request.user).email, settings.HACKERS_EMAIL, msg)
+			send_mail(UserWrapper(request.user).email, settings.HACKERS_EMAIL, msg.as_string())
 
 			PatchHistory(patch=patch, by=request.user, what='Posted %s with messageid %s' % (what, msg['Message-ID'])).save()
 
