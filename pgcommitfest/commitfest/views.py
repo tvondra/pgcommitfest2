@@ -207,6 +207,7 @@ def patch(request, cfid, patchid):
 		'is_this_committer': is_this_committer,
 		'is_reviewer': is_reviewer,
 		'committers': committers,
+		'attachnow': request.GET.has_key('attachthreadnow'),
 		'title': patch.name,
 		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},],
 		}, context_instance=RequestContext(request))

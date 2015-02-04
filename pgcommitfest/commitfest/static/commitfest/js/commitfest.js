@@ -25,9 +25,13 @@ function findLatestThreads() {
    return false;
 }
 
-function browseThreads(attachfunc) {
+function browseThreads(attachfunc, closefunc) {
    $('#attachThreadList').find('option').remove();
    $('#attachThreadMessageId').val('');
+   $('#attachModal').off('hidden.bs.modal');
+   $('#attachModal').on('hidden.bs.modal', function(e) {
+       if (closefunc) closefunc();
+   });
    $('#attachModal').modal();
    findLatestThreads();
 
@@ -52,9 +56,16 @@ function browseThreads(attachfunc) {
 
 }
 
-function attachThread(cfid, patchid) {
+function attachThread(cfid, patchid, closefunc) {
    browseThreads(function(msgid) {
-      doAttachThread(cfid, patchid, msgid);
+      doAttachThread(cfid, patchid, msgid, !closefunc);
+      if (closefunc) {
+	  /* We don't really care about closing it, we just reload immediately */
+	  closefunc();
+      }
+   },
+   function() {
+      if (closefunc) closefunc();
    });
 }
 
@@ -81,13 +92,14 @@ function attachThreadChanged() {
    }
 }
 
-function doAttachThread(cfid, patchid, msgid) {
+function doAttachThread(cfid, patchid, msgid, reloadonsuccess) {
    $.post('/ajax/attachThread/', {
       'cf': cfid,
       'p': patchid,
       'msg': msgid,
    }).success(function(data) {
-      location.reload();
+      if (reloadonsuccess)
+	  location.reload();
       return true;
    }).fail(function(data) {
       if (data.status == 404) {

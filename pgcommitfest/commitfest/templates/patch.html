@@ -58,7 +58,7 @@
 {%if user.is_authenticated%}
 	<div style="float:right"><button class="btn btn-default" onclick="attachThread({{cf.id}},{{patch.id}})">Attach thread</button></div>
 {%else%}
-	<div style="float:right"><button class="btn btn-default" onclick="location.href='/login_and_redirect_back'">Attach thread</button></div>
+	<div style="float:right"><button class="btn btn-default" onclick="location.href='/account/login/?next=/{{cf.id}}/{{patch.id}}/%3Fattachthreadnow'">Attach thread</button></div>
 {%endif%}
 	<dl>
 	{%for t in patch.mailthread_set.all%}
@@ -147,5 +147,12 @@ $(document).ready(function() {
       $(o).tooltip();
    });
 });
+{%if attachnow%}
+$(document).ready(function() {
+   attachThread({{cf.id}},{{patch.id}}, function() {
+      document.location.replace('/{{cf.id}}/{{patch.id}}/');
+   });
+});
+{%endif%}
 </script>
 {%endblock%}
