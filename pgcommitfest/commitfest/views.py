@@ -472,11 +472,11 @@ def reviewer(request, cfid, patchid, status):
 	if status=='become' and not is_reviewer:
 		patch.reviewers.add(request.user)
 		patch.set_modified()
-		PatchHistory(patch=patch, by=request.user, what='Added self as reviewer').save()
+		PatchHistory(patch=patch, by=request.user, what='Added %s as reviewer' % request.user.username).save()
 	elif status=='remove' and is_reviewer:
 		patch.reviewers.remove(request.user)
 		patch.set_modified()
-		PatchHistory(patch=patch, by=request.user, what='Removed self from reviewers').save()
+		PatchHistory(patch=patch, by=request.user, what='Removed %s from reviewers' % request.user.username).save()
 	return HttpResponseRedirect('../../')
 
 @login_required
@@ -495,11 +495,11 @@ def committer(request, cfid, patchid, status):
 	if status=='become' and not is_committer:
 		patch.committer = committer
 		patch.set_modified()
-		PatchHistory(patch=patch, by=request.user, what='Added self as committer').save()
+		PatchHistory(patch=patch, by=request.user, what='Added %s as committer' % request.user.username).save()
 	elif status=='remove' and is_committer:
 		patch.committer = None
 		patch.set_modified()
-		PatchHistory(patch=patch, by=request.user, what='Removed self from committers').save()
+		PatchHistory(patch=patch, by=request.user, what='Removed %s from committers' % request.user.username).save()
 	patch.save()
 	return HttpResponseRedirect('../../')
 
