@@ -368,7 +368,7 @@ def comment(request, cfid, patchid, what):
 		'breadcrumbs': [{'title': cf.title, 'href': '/%s/' % cf.pk},
 						{'title': 'View patch', 'href': '/%s/%s/' % (cf.pk, patch.pk)}],
 		'title': "Add %s" % what,
-		'note': '<b>Note!</b> This form will generate an email to the public mailinglist <i>pgsql-hackers</i>, with sender set to %s!' % (UserWrapper(request.user).email),
+		'note': '<b>Note!</b> This form will generate an email to the public mailinglist <i>%s</i>, with sender set to <i>%s</i>!' % (settings.HACKERS_EMAIL, UserWrapper(request.user).email),
 		'savebutton': 'Send %s' % what,
 	}, context_instance=RequestContext(request))
 
