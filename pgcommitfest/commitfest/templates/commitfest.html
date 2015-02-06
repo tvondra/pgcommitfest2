@@ -69,7 +69,7 @@
 {%endif%}
   <tr>
    <td><a href="{{p.id}}/">{{p}}</a></td>
-   <td><span class="label label-default">{{p.status|patchstatusstring}}</span></td>
+   <td><span class="label label-{{p.status|patchstatuslabel}}">{{p.status|patchstatusstring}}</span></td>
    <td>{{p.author_names|default:''}}</td>
    <td>{{p.reviewer_names|default:''}}</td>
    <td>{{p.committer|default:''}}</p>

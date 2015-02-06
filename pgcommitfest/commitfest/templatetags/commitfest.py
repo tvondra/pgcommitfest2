@@ -11,6 +11,12 @@ def patchstatusstring(value):
 	i = int(value)
 	return [v for k,v in PatchOnCommitFest._STATUS_CHOICES if k==i][0]
 
+@register.filter(name='patchstatuslabel')
+@stringfilter
+def patchstatuslabel(value):
+	i = int(value)
+	return [v for k,v in PatchOnCommitFest._STATUS_LABELS if k==i][0]
+
 @register.filter(is_safe=True)
 def label_class(value, arg):
 	return value.label_tag(attrs={'class': arg})
