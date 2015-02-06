@@ -22,7 +22,7 @@
     </tr>
     <tr>
       <th style="white-space: nowrap;">Latest email</th>
-      <td>{{patch.lastmail}} ({{patch.lastmail|timesince}} ago)</td>
+      <td>{%if patch.lastmail%}{{patch.lastmail}} ({{patch.lastmail|timesince}} ago){%endif%}</td>
     </tr>
     <tr>
       <th>Status</th>
