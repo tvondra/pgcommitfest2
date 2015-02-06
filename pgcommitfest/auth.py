@@ -1,3 +1,4 @@
+from datetime import datetime
 #
 # Django module to support postgresql.org community authentication 2.0
 #
@@ -48,24 +49,12 @@ class AuthBackend(ModelBackend):
 
 # Handle login requests by sending them off to the main site
 def login(request):
-	if request.GET.has_key('next'):
-		# Put together an url-encoded dict of parameters we're getting back,
-		# including a small nonce at the beginning to make sure it doesn't
-		# encrypt the same way every time.
-		s = "t=%s&%s" % (int(time.time()), urllib.urlencode({'r': request.GET['next']}))
-		# Now encrypt it
-		r = Random.new()
-		iv = r.read(16)
-		encryptor = AES.new(SHA.new(settings.SECRET_KEY).digest()[:16], AES.MODE_CBC, iv)
-		cipher = encryptor.encrypt(s + ' ' * (16-(len(s) % 16))) # pad to 16 bytes
 
-		return HttpResponseRedirect("%s?d=%s$%s" % (
-				settings.PGAUTH_REDIRECT,
-			    base64.b64encode(iv, "-_"),
-			    base64.b64encode(cipher, "-_"),
-				))
-	else:
-		return HttpResponseRedirect(settings.PGAUTH_REDIRECT)
+	user = User.objects.get(id=1)
+	user.backend = "%s.%s" % (AuthBackend.__module__, AuthBackend.__name__)
+
+	django_login(request, user)
+	return HttpResponseRedirect('/')
 
 # Handle logout requests by logging out of this site and then
 # redirecting to log out from the main site as well.
