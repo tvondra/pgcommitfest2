@@ -60,3 +60,18 @@ div.form-group div.controls input.threadpick-input {
 #attachThreadListWrap.loading * {
     display: none;
 }
+
+/* table listing the patches */
+.title {}
+
+.status {}
+
+.author {}
+
+.reviewers {}
+
+.committer {}
+
+.latest-activity { width: 17ex; }
+
+.latest-mail { width: 17ex; }
