@@ -1,0 +1,50 @@
+[
+  {
+    "pk": 1,
+    "model": "commitfest.patchstatus",
+    "fields": {
+      "statusstring": "Needs review",
+      "sortkey": 10
+    }
+  },
+  {
+    "pk": 2,
+    "model": "commitfest.patchstatus",
+    "fields": {
+      "statusstring": "Waiting on Author",
+      "sortkey": 15
+    }
+  },
+  {
+    "pk": 3,
+    "model": "commitfest.patchstatus",
+    "fields": {
+      "statusstring": "Ready for Committer",
+      "sortkey": 20
+    }
+  },
+  {
+    "pk": 4,
+    "model": "commitfest.patchstatus",
+    "fields": {
+      "statusstring": "Committed",
+      "sortkey": 25
+    }
+  },
+  {
+    "pk": 5,
+    "model": "commitfest.patchstatus",
+    "fields": {
+      "statusstring": "Returned with Feedback",
+      "sortkey": 30
+    }
+  },
+  {
+    "pk": 6,
+    "model": "commitfest.patchstatus",
+    "fields": {
+      "statusstring": "Rejected",
+      "sortkey": 50
+    }
+  }
+]

@@ -147,6 +147,14 @@ def commitfest(request, cfid):
 		'is_open':'commitfest_patchoncommitfest.status IN (%s)' % ','.join([str(x) for x in PatchOnCommitFest.OPEN_STATUSES]),
 	}).order_by(*ordering))
 
+	# Generate patch status summary.
+	curs = connection.cursor()
+	curs.execute("SELECT ps.status, ps.statusstring, count(*) FROM commitfest_patchoncommitfest poc INNER JOIN commitfest_patchstatus ps ON ps.status=poc.status WHERE commitfest_id=%(id)s GROUP BY ps.status ORDER BY ps.sortkey", {
+		'id': cf.id,
+		})
+	statussummary = curs.fetchall()
+	statussummary.append([-1, 'Total', sum((r[2] for r in statussummary))])
+
 	# Generates a fairly expensive query, which we shouldn't do unless
 	# the user is logged in. XXX: Figure out how to avoid doing that..
 	form = CommitFestFilterForm(cf, request.GET)
@@ -155,6 +163,7 @@ def commitfest(request, cfid):
 		'cf': cf,
 		'form': form,
 		'patches': patches,
+		'statussummary': statussummary,
 		'has_filter': has_filter,
 		'title': cf.title,
 		'grouping': sortkey==0,

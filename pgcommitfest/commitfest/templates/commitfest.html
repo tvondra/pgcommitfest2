@@ -37,6 +37,11 @@
     </form>
 </div>
 
+<p>
+<br/>
+<b>Status summary: </b>{%for id,title,num in statussummary%}<a href="?status={{id}}">{{title}}</a>: {{num}}. {%endfor%}
+</p>
+
 {%for p in patches %}
 {%ifchanged p.is_open%}
 {%if not forloop.first%}

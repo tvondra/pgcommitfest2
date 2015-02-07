@@ -137,6 +137,10 @@ class Patch(models.Model, DiffableModel):
 		verbose_name_plural = 'patches'
 
 class PatchOnCommitFest(models.Model):
+	# NOTE! This is also matched by the commitfest_patchstatus table,
+	# but we hardcoded it in here simply for performance reasons since
+	# the data should be entirely static. (Yes, that's something we
+	# might re-evaluate in the future)
 	STATUS_REVIEW=1
 	STATUS_AUTHOR=2
 	STATUS_COMMITTER=3
@@ -222,3 +226,8 @@ class MailThreadAttachment(models.Model):
 	class Meta:
 		ordering = ('-date',)
 		unique_together = (('mailthread', 'messageid',), )
+
+class PatchStatus(models.Model):
+	status = models.IntegerField(null=False, blank=False, primary_key=True)
+	statusstring = models.TextField(max_length=50, null=False, blank=False)
+	sortkey = models.IntegerField(null=False, blank=False, default=10)
