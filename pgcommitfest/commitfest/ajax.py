@@ -75,7 +75,8 @@ def parse_and_add_attachments(threadinfo, mailthread):
 													   defaults={
 														   'date': t['date'],
 														   'author': t['from'],
-														   'attachmentid': t['atts'][0],
+														   'attachmentid': t['atts'][0]['id'],
+														   'filename': t['atts'][0]['name'],
 													   })
 		# In theory we should remove objects if they don't have an
 		# attachment, but how could that ever happen? Ignore for now.
