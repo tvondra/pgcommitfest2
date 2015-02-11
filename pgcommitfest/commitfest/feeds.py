@@ -20,13 +20,13 @@ class ActivityFeed(Feed):
 		if self.cfid:
 			return item['name']
 		else:
-			return '{cfname}: {name}'.format(**item)
+			return u'{cfname}: {name}'.format(**item)
 
 	def item_description(self, item):
 		if self.cfid:
-			return "<div>Patch: {name}</div><div>User: {by}</div>\n<div>{what}</div>".format(**item)
+			return u"<div>Patch: {name}</div><div>User: {by}</div>\n<div>{what}</div>".format(**item)
 		else:
-			return "<div>Commitfest: {cfname}</div><div>Patch: {name}</div><div>User: {by}</div><div>{what}</div>".format(**item)
+			return u"<div>Commitfest: {cfname}</div><div>Patch: {name}</div><div>User: {by}</div><div>{what}</div>".format(**item)
 
 	def item_link(self, item):
 		if self.cfid:
