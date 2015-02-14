@@ -183,6 +183,10 @@ class PatchHistory(models.Model):
 	by = models.ForeignKey(User, blank=False, null=False)
 	what = models.CharField(max_length=500, null=False, blank=False)
 
+	@property
+	def by_string(self):
+		return "%s %s (%s)" % (self.by.first_name, self.by.last_name, self.by.username)
+
 	def __unicode__(self):
 		return "%s - %s" % (self.patch.name, self.date)
 
