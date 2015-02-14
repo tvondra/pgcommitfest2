@@ -232,6 +232,23 @@ class MailThreadAttachment(models.Model):
 		ordering = ('-date',)
 		unique_together = (('mailthread', 'messageid',), )
 
+class MailThreadAnnotation(models.Model):
+	mailthread = models.ForeignKey(MailThread, null=False, blank=False)
+	date = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+	user = models.ForeignKey(User, null=False, blank=False)
+	msgid = models.CharField(max_length=1000, null=False, blank=False)
+	annotationtext = models.TextField(null=False, blank=False, max_length=2000)
+	mailsubject = models.CharField(max_length=500, null=False, blank=False)
+	maildate = models.DateTimeField(null=False, blank=False)
+	mailauthor = models.CharField(max_length=500, null=False, blank=False)
+
+	@property
+	def user_string(self):
+		return "%s %s (%s)" % (self.user.first_name, self.user.last_name, self.user.username)
+
+	class Meta:
+		ordering = ('date', )
+
 class PatchStatus(models.Model):
 	status = models.IntegerField(null=False, blank=False, primary_key=True)
 	statusstring = models.TextField(max_length=50, null=False, blank=False)

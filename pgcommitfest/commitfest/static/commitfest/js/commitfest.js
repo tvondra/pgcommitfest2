@@ -118,6 +118,71 @@ function doAttachThread(cfid, patchid, msgid, reloadonsuccess) {
    });
 }
 
+function updateAnnotationMessages(threadid) {
+    $('#annotateMessageBody').addClass('loading');
+    $('#doAnnotateMessageButton').addClass('disabled');
+    $.get('/ajax/getMessages', {
+	't': threadid,
+    }).success(function(data) {
+	sel = $('#annotateMessageList')
+	sel.find('option').remove();
+	$.each(data, function(i,m) {
+	    sel.append('<option value="' + m.msgid + '">' + m.from + ': ' + m.subj + ' (' + m.date + ')</option>');
+	});
+    }).always(function() {
+	$('#annotateMessageBody').removeClass('loading');
+    });
+}
+function addAnnotation(threadid) {
+    $('#annotateThreadList').find('option').remove();
+    $('#annotateMessage').val('');
+    $('#annotateModal').modal();
+    updateAnnotationMessages(threadid);
+    $('#doAnnotateMessageButton').unbind('click');
+    $('#doAnnotateMessageButton').click(function() {
+	$('#doAnnotateMessageButton').addClass('disabled');
+	$('#annotateMessageBody').addClass('loading');
+	$.post('/ajax/annotateMessage/', {
+	    't': threadid,
+	    'msgid': $('#annotateMessageList').val(),
+	    'msg': $('#annotateMessage').val()
+	}).success(function(data) {
+	    if (data != 'OK') {
+		alert(data);
+	    }
+	    else {
+		$('#annotateModal').modal('hide');
+		location.reload();
+	    }
+	}).fail(function(data) {
+	    alert('Failed to annotate message');
+	    $('#annotateMessageBody').removeClass('loading');
+	});
+    });
+}
+
+function annotateChanged() {
+    /* Enable/disable the annotate button */
+    if ($('#annotateMessage').val() != '' && $('#annotateMessageList').val()) {
+	$('#doAnnotateMessageButton').removeClass('disabled');
+    }
+    else {
+	$('#doAnnotateMessageButton').addClass('disabled');
+    }
+}
+
+function deleteAnnotation(annid) {
+    if (confirm('Are you sure you want to delete this annotation?')) {
+      $.post('/ajax/deleteAnnotation/', {
+	  'id': annid,
+      }).success(function(data) {
+         location.reload();
+      }).fail(function(data) {
+         alert('Failed to delete annotation!');
+      });
+    }
+}
+
 function flagCommitted(committer) {
    $('#commitModal').modal();
    $('#committerSelect').val(committer);

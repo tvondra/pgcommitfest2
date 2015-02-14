@@ -19,7 +19,8 @@ class HttpResponseServiceUnavailable(HttpResponse):
 class Http503(Exception):
 	pass
 
-from models import CommitFest, Patch, MailThread, MailThreadAttachment, PatchHistory
+from models import CommitFest, Patch, MailThread, MailThreadAttachment
+from models import MailThreadAnnotation, PatchHistory
 
 def _archivesAPI(suburl, params=None):
 	try:
@@ -63,6 +64,56 @@ def getThreads(request):
 	r = _archivesAPI('/list/pgsql-hackers/latest.json', params)
 	return sorted(r, key=lambda x: x['date'], reverse=True)
 
+def getMessages(request):
+	threadid = request.GET['t']
+
+	thread = MailThread.objects.get(pk=threadid)
+
+	# Always make a call over to the archives api
+	r = _archivesAPI('/message-id.json/%s' % thread.messageid)
+	return sorted(r, key=lambda x: x['date'], reverse=True)
+
+@transaction.commit_on_success
+def annotateMessage(request):
+	thread = get_object_or_404(MailThread, pk=int(request.POST['t']))
+	msgid = request.POST['msgid']
+	msg = request.POST['msg']
+
+	# Get the subject, author and date from the archives
+	# We only have an API call to get the whole thread right now, so
+	# do that, and then find our entry in it.
+	r = _archivesAPI('/message-id.json/%s' % thread.messageid)
+	for m in r:
+		if m['msgid'] == msgid:
+			annotation = MailThreadAnnotation(mailthread=thread,
+											  user=request.user,
+											  msgid=msgid,
+											  annotationtext=msg,
+											  mailsubject=m['subj'],
+											  maildate=m['date'],
+											  mailauthor=m['from'])
+			annotation.save()
+
+			for p in thread.patches.all():
+				PatchHistory(patch=p, by=request.user, what='Added annotation "%s" to %s' % (msg, msgid)).save()
+				p.set_modified()
+				p.save()
+
+			return 'OK'
+	return 'Message not found in thread!'
+
+@transaction.commit_on_success
+def deleteAnnotation(request):
+	annotation = get_object_or_404(MailThreadAnnotation, pk=request.POST['id'])
+
+	for p in annotation.mailthread.patches.all():
+		PatchHistory(patch=p, by=request.user, what='Deleted annotation "%s" from %s' % (annotation.annotationtext, annotation.msgid)).save()
+		p.set_modified()
+		p.save()
+
+	annotation.delete()
+
+	return 'OK'
 
 def parse_and_add_attachments(threadinfo, mailthread):
 	for t in threadinfo:
@@ -176,8 +227,11 @@ def importUser(request):
 
 _ajax_map={
 	'getThreads': getThreads,
+	'getMessages': getMessages,
 	'attachThread': attachThread,
 	'detachThread': detachThread,
+	'annotateMessage': annotateMessage,
+	'deleteAnnotation': deleteAnnotation,
 	'searchUsers': searchUsers,
 	'importUser': importUser,
 }

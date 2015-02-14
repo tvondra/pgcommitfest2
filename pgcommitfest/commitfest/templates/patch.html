@@ -74,6 +74,34 @@
            &nbsp;&nbsp;&nbsp;&nbsp;Attachment (<a href="http://www.postgresql.org/message-id/attachment/{{ta.attachmentid}}/{{ta.filename}}">{{ta.filename}}</a>) at <a href="http://www.postgresql.org/message-id/{{ta.messageid}}/">{{ta.date}}</a> from {{ta.author|hidemail}} (Patch: {{ta.ispatch|yesno:"Yes,No,Pending check"}})<br/>
           {%if forloop.last%}</div>{%endif%}
 	  {%endfor%}
+	   <div>
+	     {%for a in t.mailthreadannotation_set.all%}
+	     {%if forloop.first%}
+	     <h4>Annotations</h4>
+	     <table class="table table-bordered table-striped table-condensed small">
+	       <thead>
+		 <tr>
+		   <th>When</th>
+		   <th>Who</th>
+		   <th>Mail</th>
+		   <th>Annotation</th>
+		 </tr>
+	       </thead>
+	       <tbody>
+	     {%endif%}
+	         <tr>
+		   <td>{{a.date}}</td>
+		   <td style="white-space: nowrap">{{a.user_string}}</td>
+		   <td style="white-space: nowrap">From {{a.mailauthor}}<br/>at <a href="http://www.postgresql.org/message-id/{{a.msgid}}/">{{a.maildate}}</a></td>
+		   <td width="99%">{{a.annotationtext}} <button type="button" class="close" title="Delete this annotation" onclick="deleteAnnotation({{a.id}})">&times;</button></td>
+		 </tr>
+	     {%if forloop.last%}
+               </body>
+             </table>
+             {%endif%}
+	     {%endfor%}
+	     <button class="btn btn-xs btn-default" onclick="addAnnotation({{t.id}})">Add annotation</button>
+	   </div>
 	 </dd>
 	{%endfor%}
 	</dl>
@@ -138,6 +166,31 @@
 </div>
 
 {%include "thread_attach.inc"%}
+{%comment%}Modal dialog for adding annotation{%endcomment%}
+<div class="modal fade" id="annotateModal" role="dialog">
+ <div class="modal-dialog modal-lg"><div class="modal-content">
+  <div class="modal-header">
+   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+   <h3>Add annotation</h3>
+  </div>
+  <div id="annotateMessageBody" class="modal-body">
+   <div>Pick one of the messages in this thread</div>
+   <div id="annotateListWrap">
+    <select id="annotateMessageList" style="width:100%;" onChange="annotateChanged()">
+    </select>
+   </div>
+   <div><br/></div>
+   <div>Enter a messages for the annotation</div>
+   <div id="annotateTextWrap">
+     <input id="annotateMessage" type="text" style="width:100%" onKeyUp="annotateChanged()">
+   </div>
+  </div>
+  <div class="modal-footer">
+   <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+   <a href="#" id="doAnnotateMessageButton" class="btn btn-default btn-primary disabled">Add annotation</a>
+  </div>
+ </div></div>
+</div>
 {%endblock%}
 
 {%block morescript%}
