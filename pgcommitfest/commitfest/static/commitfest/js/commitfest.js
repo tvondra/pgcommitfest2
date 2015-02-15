@@ -126,6 +126,7 @@ function updateAnnotationMessages(threadid) {
     }).success(function(data) {
 	sel = $('#annotateMessageList')
 	sel.find('option').remove();
+	sel.append('<option value="">---</option>');
 	$.each(data, function(i,m) {
 	    sel.append('<option value="' + m.msgid + '">' + m.from + ': ' + m.subj + ' (' + m.date + ')</option>');
 	});
@@ -136,7 +137,9 @@ function updateAnnotationMessages(threadid) {
 function addAnnotation(threadid) {
     $('#annotateThreadList').find('option').remove();
     $('#annotateMessage').val('');
+    $('#annotateMsgId').val('');
     $('#annotateModal').modal();
+    $('#annotateThreadList').focus();
     updateAnnotationMessages(threadid);
     $('#doAnnotateMessageButton').unbind('click');
     $('#doAnnotateMessageButton').click(function() {
@@ -144,11 +147,12 @@ function addAnnotation(threadid) {
 	$('#annotateMessageBody').addClass('loading');
 	$.post('/ajax/annotateMessage/', {
 	    't': threadid,
-	    'msgid': $('#annotateMessageList').val(),
+	    'msgid': $.trim($('#annotateMsgId').val()),
 	    'msg': $('#annotateMessage').val()
 	}).success(function(data) {
 	    if (data != 'OK') {
 		alert(data);
+		$('#annotateMessageBody').removeClass('loading');
 	    }
 	    else {
 		$('#annotateModal').modal('hide');
@@ -161,9 +165,17 @@ function addAnnotation(threadid) {
     });
 }
 
+function annotateMsgPicked() {
+    var val = $('#annotateMessageList').val();
+    if (val) {
+	$('#annotateMsgId').val(val);
+	annotateChanged();
+    }
+}
+
 function annotateChanged() {
     /* Enable/disable the annotate button */
-    if ($('#annotateMessage').val() != '' && $('#annotateMessageList').val()) {
+    if ($('#annotateMessage').val() != '' && $('#annotateMsgId').val()) {
 	$('#doAnnotateMessageButton').removeClass('disabled');
     }
     else {

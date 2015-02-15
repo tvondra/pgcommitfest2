@@ -176,8 +176,12 @@
   <div id="annotateMessageBody" class="modal-body">
    <div>Pick one of the messages in this thread</div>
    <div id="annotateListWrap">
-    <select id="annotateMessageList" style="width:100%;" onChange="annotateChanged()">
+    <select id="annotateMessageList" style="width:100%;" onChange="annotateMsgPicked()">
     </select>
+   </div>
+   <div>Or copy/paste the message-id:</div>
+   <div id="annotateMsgidWrap">
+     <input id="annotateMsgId" type="text" style="width:100%" onKeyUp="annotateChanged()">
    </div>
    <div><br/></div>
    <div>Enter a messages for the annotation</div>
