@@ -143,12 +143,17 @@ function addAnnotation(threadid) {
     updateAnnotationMessages(threadid);
     $('#doAnnotateMessageButton').unbind('click');
     $('#doAnnotateMessageButton').click(function() {
+	var msg = $('#annotateMessage').val();
+	if (msg.length >= 500) {
+	    alert('Maximum length for an annotation is 500 characters.\nYou should probably post an actual message in the thread!');
+	    return;
+	}
 	$('#doAnnotateMessageButton').addClass('disabled');
 	$('#annotateMessageBody').addClass('loading');
 	$.post('/ajax/annotateMessage/', {
 	    't': threadid,
 	    'msgid': $.trim($('#annotateMsgId').val()),
-	    'msg': $('#annotateMessage').val()
+	    'msg': msg
 	}).success(function(data) {
 	    if (data != 'OK') {
 		alert(data);
