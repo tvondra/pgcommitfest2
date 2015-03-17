@@ -311,8 +311,13 @@ def comment(request, cfid, patchid, what):
 	is_review = (what=='review')
 
 	if poc.is_closed:
-		messages.add_message(request, messages.INFO, "The status of this patch cannot be changed in this commitfest. You must modify it in the one where it's open!")
-		return HttpResponseRedirect('..')
+		# We allow modification of patches in closed CFs *only* if it's the
+		# last CF that the patch is part of. If it's part of another CF, that
+		# is later than this one, tell the user to go there instead.
+		lastcf = PatchOnCommitFest.objects.filter(patch=patch).order_by('-commitfest__startdate')[0]
+		if poc != lastcf:
+			messages.add_message(request, messages.INFO, "The status of this patch cannot be changed in this commitfest. You must modify it in the one where it's open!")
+			return HttpResponseRedirect('..')
 
 	if request.method == 'POST':
 		try:
@@ -387,25 +392,31 @@ def status(request, cfid, patchid, status):
 	poc = get_object_or_404(PatchOnCommitFest.objects.select_related(), commitfest__id=cfid, patch__id=patchid)
 
 	if poc.is_closed:
-		messages.add_message(request, messages.INFO, "The status of this patch cannot be changed in this commitfest. You must modify it in the one where it's open!")
+		# We allow modification of patches in closed CFs *only* if it's the
+		# last CF that the patch is part of. If it's part of another CF, that
+		# is later than this one, tell the user to go there instead.
+		lastcf = PatchOnCommitFest.objects.filter(patch__id=patchid).order_by('-commitfest__startdate')[0]
+		if poc != lastcf:
+			messages.add_message(request, messages.INFO, "The status of this patch cannot be changed in this commitfest. You must modify it in the one where it's open!")
+			return HttpResponseRedirect('/%s/%s/' % (poc.commitfest.id, poc.patch.id))
+
+	if status == 'review':
+		newstatus = PatchOnCommitFest.STATUS_REVIEW
+	elif status == 'author':
+		newstatus = PatchOnCommitFest.STATUS_AUTHOR
+	elif status == 'committer':
+		newstatus = PatchOnCommitFest.STATUS_COMMITTER
 	else:
-		if status == 'review':
-			newstatus = PatchOnCommitFest.STATUS_REVIEW
-		elif status == 'author':
-			newstatus = PatchOnCommitFest.STATUS_AUTHOR
-		elif status == 'committer':
-			newstatus = PatchOnCommitFest.STATUS_COMMITTER
-		else:
-			raise Exception("Can't happen")
+		raise Exception("Can't happen")
 
-		if newstatus != poc.status:
-			# Only save it if something actually changed
-			poc.status = newstatus
-			poc.patch.set_modified()
-			poc.patch.save()
-			poc.save()
+	if newstatus != poc.status:
+		# Only save it if something actually changed
+		poc.status = newstatus
+		poc.patch.set_modified()
+		poc.patch.save()
+		poc.save()
 
-			PatchHistory(patch=poc.patch, by=request.user, what='New status: %s' % poc.statusstring).save()
+		PatchHistory(patch=poc.patch, by=request.user, what='New status: %s' % poc.statusstring).save()
 
 	return HttpResponseRedirect('/%s/%s/' % (poc.commitfest.id, poc.patch.id))
 
@@ -416,57 +427,63 @@ def close(request, cfid, patchid, status):
 	poc = get_object_or_404(PatchOnCommitFest.objects.select_related(), commitfest__id=cfid, patch__id=patchid)
 
 	if poc.is_closed:
-		messages.add_message(request, messages.INFO, "The status of this patch cannot be changed in this commitfest. You must modify it in the one where it's open!")
-	else:
-		poc.leavedate = datetime.now()
+		# We allow modification of patches in closed CFs *only* if it's the
+		# last CF that the patch is part of. If it's part of another CF, that
+		# is later than this one, tell the user to go there instead.
+		lastcf = PatchOnCommitFest.objects.filter(patch__id=patchid).order_by('-commitfest__startdate')[0]
+		if poc != lastcf:
+			messages.add_message(request, messages.INFO, "The status of this patch cannot be changed in this commitfest. You must modify it in the one where it's open!")
+			return HttpResponseRedirect('/%s/%s/' % (poc.commitfest.id, poc.patch.id))
 
-		# We know the status can't be one of the ones below, since we
-		# have checked that we're not closed yet. Therefor, we don't
-		# need to check if the individual status has changed.
-		if status == 'reject':
-			poc.status = PatchOnCommitFest.STATUS_REJECTED
-		elif status == 'feedback':
-			poc.status = PatchOnCommitFest.STATUS_RETURNED
-			# Figure out the commitfest to actually put it on
-			newcf = CommitFest.objects.filter(status=CommitFest.STATUS_OPEN)
+	poc.leavedate = datetime.now()
+
+	# We know the status can't be one of the ones below, since we
+	# have checked that we're not closed yet. Therefor, we don't
+	# need to check if the individual status has changed.
+	if status == 'reject':
+		poc.status = PatchOnCommitFest.STATUS_REJECTED
+	elif status == 'feedback':
+		poc.status = PatchOnCommitFest.STATUS_RETURNED
+		# Figure out the commitfest to actually put it on
+		newcf = CommitFest.objects.filter(status=CommitFest.STATUS_OPEN)
+		if len(newcf) == 0:
+			# Ok, there is no open CF at all. Let's see if there is a
+			# future one.
+			newcf = CommitFest.objects.filter(status=CommitFest.STATUS_FUTURE)
 			if len(newcf) == 0:
-				# Ok, there is no open CF at all. Let's see if there is a
-				# future one.
-				newcf = CommitFest.objects.filter(status=CommitFest.STATUS_FUTURE)
-				if len(newcf) == 0:
-					raise Exception("No open and no future commitfest exists!")
-				elif len(newcf) != 1:
-					raise Exception("No open and multiple future commitfests exist!")
+				raise Exception("No open and no future commitfest exists!")
 			elif len(newcf) != 1:
-				raise Exception("Multiple open commitfests exists!")
-			elif newcf[0] == poc.commitfest:
-				# The current open CF is the same one that we are already on.
-				# In this case, try to see if there is a future CF we can
-				# move it to.
-				newcf = CommitFest.objects.filter(status=CommitFest.STATUS_FUTURE)
-				if len(newcf) == 0:
-					raise Exception("Cannot move patch to the same commitfest, and no future commitfests exist!")
-				elif len(newcf) != 1:
-					raise Exception("Cannot move patch to the same commitfest, and multiple future commitfests exist!")
-			# Create a mapping to the new commitfest that we are bouncing
-			# this patch to.
-			newpoc = PatchOnCommitFest(patch=poc.patch, commitfest=newcf[0], enterdate=datetime.now())
-			newpoc.save()
-		elif status == 'committed':
-			committer = get_object_or_404(Committer, user__username=request.GET['c'])
-			if committer != poc.patch.committer:
-				# Committer changed!
-				poc.patch.committer = committer
-				PatchHistory(patch=poc.patch, by=request.user, what='Changed committer to %s' % committer).save()
-			poc.status = PatchOnCommitFest.STATUS_COMMITTED
-		else:
-			raise Exception("Can't happen")
+				raise Exception("No open and multiple future commitfests exist!")
+		elif len(newcf) != 1:
+			raise Exception("Multiple open commitfests exists!")
+		elif newcf[0] == poc.commitfest:
+			# The current open CF is the same one that we are already on.
+			# In this case, try to see if there is a future CF we can
+			# move it to.
+			newcf = CommitFest.objects.filter(status=CommitFest.STATUS_FUTURE)
+			if len(newcf) == 0:
+				raise Exception("Cannot move patch to the same commitfest, and no future commitfests exist!")
+			elif len(newcf) != 1:
+				raise Exception("Cannot move patch to the same commitfest, and multiple future commitfests exist!")
+		# Create a mapping to the new commitfest that we are bouncing
+		# this patch to.
+		newpoc = PatchOnCommitFest(patch=poc.patch, commitfest=newcf[0], enterdate=datetime.now())
+		newpoc.save()
+	elif status == 'committed':
+		committer = get_object_or_404(Committer, user__username=request.GET['c'])
+		if committer != poc.patch.committer:
+			# Committer changed!
+			poc.patch.committer = committer
+			PatchHistory(patch=poc.patch, by=request.user, what='Changed committer to %s' % committer).save()
+		poc.status = PatchOnCommitFest.STATUS_COMMITTED
+	else:
+		raise Exception("Can't happen")
 
-		poc.patch.set_modified()
-		poc.patch.save()
-		poc.save()
+	poc.patch.set_modified()
+	poc.patch.save()
+	poc.save()
 
-		PatchHistory(patch=poc.patch, by=request.user, what='Closed in commitfest %s with status: %s' % (poc.commitfest, poc.statusstring)).save()
+	PatchHistory(patch=poc.patch, by=request.user, what='Closed in commitfest %s with status: %s' % (poc.commitfest, poc.statusstring)).save()
 
 	return HttpResponseRedirect('/%s/%s/' % (poc.commitfest.id, poc.patch.id))
 
