@@ -35,7 +35,7 @@
     "pk": 5,
     "model": "commitfest.patchstatus",
     "fields": {
-      "statusstring": "Returned with Feedback",
+      "statusstring": "Moved to next CF",
       "sortkey": 30
     }
   },
@@ -44,6 +44,14 @@
     "model": "commitfest.patchstatus",
     "fields": {
       "statusstring": "Rejected",
+      "sortkey": 50
+    }
+  },
+  {
+    "pk": 7,
+    "model": "commitfest.patchstatus",
+    "fields": {
+      "statusstring": "Returned with Feedback",
       "sortkey": 50
     }
   }

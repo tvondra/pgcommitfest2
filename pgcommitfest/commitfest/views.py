@@ -444,6 +444,8 @@ def close(request, cfid, patchid, status):
 		poc.status = PatchOnCommitFest.STATUS_REJECTED
 	elif status == 'feedback':
 		poc.status = PatchOnCommitFest.STATUS_RETURNED
+	elif status == 'next':
+		poc.status = PatchOnCommitFest.STATUS_NEXT
 		# Figure out the commitfest to actually put it on
 		newcf = CommitFest.objects.filter(status=CommitFest.STATUS_OPEN)
 		if len(newcf) == 0:

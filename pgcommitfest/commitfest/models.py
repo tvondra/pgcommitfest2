@@ -145,23 +145,26 @@ class PatchOnCommitFest(models.Model):
 	STATUS_AUTHOR=2
 	STATUS_COMMITTER=3
 	STATUS_COMMITTED=4
-	STATUS_RETURNED=5
+	STATUS_NEXT=5
 	STATUS_REJECTED=6
+	STATUS_RETURNED=7
 	_STATUS_CHOICES=(
 		(STATUS_REVIEW, 'Needs review'),
 		(STATUS_AUTHOR, 'Waiting on Author'),
 		(STATUS_COMMITTER, 'Ready for Committer'),
 		(STATUS_COMMITTED, 'Committed'),
-		(STATUS_RETURNED, 'Returned with Feedback'),
+		(STATUS_NEXT, 'Moved to next CF'),
 		(STATUS_REJECTED, 'Rejected'),
+		(STATUS_RETURNED, 'Returned with feedback')
 	)
 	_STATUS_LABELS=(
 		(STATUS_REVIEW, 'default'),
 		(STATUS_AUTHOR, 'primary'),
 		(STATUS_COMMITTER, 'info'),
 		(STATUS_COMMITTED, 'success'),
-		(STATUS_RETURNED, 'warning'),
+		(STATUS_NEXT, 'warning'),
 		(STATUS_REJECTED, 'danger'),
+		(STATUS_RETURNED, 'danger'),
 	)
 	OPEN_STATUSES=(STATUS_REVIEW, STATUS_AUTHOR, STATUS_COMMITTER)
 	OPEN_STATUS_CHOICES=[x for x in _STATUS_CHOICES if x[0] in OPEN_STATUSES]
